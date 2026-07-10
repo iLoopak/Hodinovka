@@ -1,0 +1,26 @@
+{
+  "name": "Hodinovka — fakturace a výkazy práce",
+  "short_name": "Hodinovka",
+  "description": "Lokální aplikace pro výkazy práce a fakturaci. Data zůstávají ve vašem zařízení.",
+  "lang": "cs",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f8f7",
+  "theme_color": "#2f6f4f",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
