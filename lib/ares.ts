@@ -1,6 +1,13 @@
 /**
- * Klientský helper pro volání ARES proxy (viz api/ares/[ico].ts).
+ * ARES lookup — volá registr ekonomických subjektů přímo z prohlížeče.
+ *
+ * ARES posílá `Access-Control-Allow-Origin: *`, takže proxy není potřeba.
+ * Díky tomu funguje doplnění z IČO stejně v `next dev`, na nasazené PWA
+ * i v Capacitor APK — bez jakéhokoli backendu.
  */
+
+const ARES_BASE =
+  "https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty";
 
 export interface AresResult {
   ico: string;
@@ -19,10 +26,28 @@ export class AresError extends Error {
   }
 }
 
+interface AresRaw {
+  ico?: string;
+  obchodniJmeno?: string;
+  dic?: string;
+  pravniForma?: string;
+  sidlo?: { textovaAdresa?: string };
+}
+
+function normalize(data: AresRaw, ico: string): AresResult {
+  return {
+    ico: data.ico ?? ico,
+    name: data.obchodniJmeno ?? "",
+    address: data.sidlo?.textovaAdresa ?? "",
+    dic: data.dic ?? undefined,
+    legalForm: data.pravniForma ?? undefined,
+  };
+}
+
 /**
- * Načte subjekt z ARES podle IČO. Vyhazuje `AresError` s českou hláškou,
- * kterou lze rovnou zobrazit uživateli (404 = nenalezeno, 502 = ARES nedostupný,
- * atd.). Volající by měl vždy nechat i ruční zadání.
+ * Načte subjekt z ARES podle IČO. Vyhazuje `AresError` s českou hláškou
+ * připravenou k zobrazení uživateli (404 = nenalezeno, 502 = chyba ARES…).
+ * Volající by měl vždy nechat i ruční zadání.
  */
 export async function fetchAresByIco(ico: string): Promise<AresResult> {
   const clean = ico.replace(/\D/g, "");
@@ -32,27 +57,26 @@ export async function fetchAresByIco(ico: string): Promise<AresResult> {
 
   let res: Response;
   try {
-    res = await fetch(`/api/ares/${clean}`, {
+    res = await fetch(`${ARES_BASE}/${clean}`, {
       headers: { accept: "application/json" },
     });
   } catch {
     throw new AresError("Nepodařilo se spojit s ARES.", 0);
   }
 
-  let body: unknown = null;
-  try {
-    body = await res.json();
-  } catch {
-    // ponecháme body = null
+  if (res.status === 404) {
+    throw new AresError(`Subjekt s IČO ${clean} nebyl nalezen.`, 404);
   }
-
   if (!res.ok) {
-    const msg =
-      (body && typeof body === "object" && "error" in body
-        ? String((body as { error: unknown }).error)
-        : null) ?? "Načtení z ARES selhalo.";
-    throw new AresError(msg, res.status);
+    throw new AresError("ARES vrátil chybu.", res.status);
   }
 
-  return body as AresResult;
+  let data: AresRaw;
+  try {
+    data = (await res.json()) as AresRaw;
+  } catch {
+    throw new AresError("Neplatná odpověď z ARES.", 502);
+  }
+
+  return normalize(data, clean);
 }
