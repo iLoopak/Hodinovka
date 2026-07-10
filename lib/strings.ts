@@ -24,6 +24,38 @@ export const strings = {
     empty: "Zatím tu nejsou žádní klienti.",
     emptyHint: "Přidejte prvního klienta pomocí IČO nebo ručně.",
     add: "Nový klient",
+    search: "Hledat podle jména nebo IČO…",
+    noResults: "Žádný klient neodpovídá hledání.",
+    newTitle: "Nový klient",
+    editTitle: "Upravit klienta",
+    notFound: "Klient nenalezen.",
+    // Sekce v detailu
+    contact: "Kontakt",
+    projects: "Projekty",
+    invoices: "Faktury",
+    noProjects: "Zatím žádné projekty.",
+    noInvoices: "Zatím žádné faktury.",
+    newInvoice: "Nová faktura",
+    // Mazání
+    deleteConfirm: "Opravdu smazat tohoto klienta?",
+    deleteWarnLinked:
+      "Na klienta jsou navázané projekty nebo faktury. Smazáním o ně přijdete.",
+    // Pole formuláře
+    fields: {
+      ico: "IČO",
+      loadFromAres: "Načíst z ARES",
+      loading: "Načítám z ARES…",
+      name: "Název / jméno",
+      dic: "DIČ",
+      address: "Adresa",
+      email: "E-mail",
+      phone: "Telefon",
+      defaultRate: "Výchozí hodinová sazba",
+      currency: "Měna",
+      notes: "Poznámky",
+    },
+    nameRequired: "Vyplňte název klienta.",
+    saved: "Klient uložen.",
   },
 
   projekty: {

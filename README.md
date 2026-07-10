@@ -35,5 +35,10 @@ docs/           # roadmap.md + faktura-pdf-layout.md
 
 Postup vývoje po fázích viz [`docs/roadmap.md`](docs/roadmap.md).
 
-**Stav:** Fáze 0 (scaffolding) hotová — instalovatelná PWA s prázdnými
-sekcemi a funkčním lokálním DB schématem.
+**Stav:** Fáze 1 (Klienti) hotová — správa klientů (přidat/upravit/smazat,
+hledání) s automatickým doplněním z ARES podle IČO přes Edge Function
+`api/ares/[ico].ts`.
+
+> ARES lookup běží jako samostatná Vercel funkce mimo statický export.
+> V `next dev` neběží — funguje až na nasazené verzi nebo přes `vercel dev`.
+> Ruční zadání klienta je vždy plně podporováno.

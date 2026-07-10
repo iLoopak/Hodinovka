@@ -1,13 +1,18 @@
+import Link from "next/link";
+
 export function EmptyState({
   emoji,
   title,
   hint,
   actionLabel,
+  actionHref,
 }: {
   emoji: string;
   title: string;
   hint: string;
   actionLabel: string;
+  /** Když je zadáno, akční tlačítko je odkaz; jinak je jen dekorativní (disabled). */
+  actionHref?: string;
 }) {
   return (
     <div className="empty-state">
@@ -16,10 +21,15 @@ export function EmptyState({
       </span>
       <p className="empty-title">{title}</p>
       <p>{hint}</p>
-      {/* Akce zatím bez funkce — přijde v dalších fázích. */}
-      <button className="btn-primary" type="button" disabled>
-        {actionLabel}
-      </button>
+      {actionHref ? (
+        <Link className="btn-primary" href={actionHref}>
+          {actionLabel}
+        </Link>
+      ) : (
+        <button className="btn-primary" type="button" disabled>
+          {actionLabel}
+        </button>
+      )}
     </div>
   );
 }

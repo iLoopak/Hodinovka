@@ -125,7 +125,6 @@ body {
 
 .btn-primary {
   display: inline-block;
-  margin-top: 20px;
   padding: 12px 20px;
   border: none;
   border-radius: 12px;
@@ -134,4 +133,203 @@ body {
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+  text-decoration: none;
+  text-align: center;
 }
+
+.empty-state .btn-primary {
+  margin-top: 20px;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn-secondary {
+  display: inline-block;
+  padding: 11px 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-danger {
+  color: #b3261e;
+  border-color: #e6b4b0;
+  background: transparent;
+}
+
+/* --- Page header with action --- */
+.page-header.with-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.link-back {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+/* --- Forms --- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 16px; /* ≥16px kvůli iOS (nezoomuje) */
+  font-family: inherit;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+  border-color: transparent;
+}
+
+.field-inline {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.field-inline .field {
+  flex: 1;
+}
+
+.field-error {
+  color: #b3261e;
+  font-size: 13px;
+}
+
+.field-hint {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.form-actions .btn-primary,
+.form-actions .btn-secondary {
+  flex: 1;
+}
+
+/* --- Search / toolbar --- */
+.search-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+/* --- List of cards --- */
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  display: block;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.card .card-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.card .card-sub {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+/* --- Detail sections --- */
+.detail-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.detail-section h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0;
+  font-size: 15px;
+}
+
+.detail-row .detail-label {
+  color: var(--text-muted);
+}
+
+.detail-row .detail-value {
+  text-align: right;
+  word-break: break-word;
+}
+
+/* Odsazení fixní spodní navigace u delších stránek řeší .app-content padding. */
