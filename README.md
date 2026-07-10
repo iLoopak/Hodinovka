@@ -35,5 +35,9 @@ docs/           # roadmap.md + faktura-pdf-layout.md
 
 Postup vývoje po fázích viz [`docs/roadmap.md`](docs/roadmap.md).
 
-**Stav:** Fáze 0 (scaffolding) hotová — instalovatelná PWA s prázdnými
-sekcemi a funkčním lokálním DB schématem.
+**Stav:** Fáze 1 (Klienti) hotová — správa klientů (přidat/upravit/smazat,
+hledání) s automatickým doplněním z ARES podle IČO.
+
+> ARES posílá `Access-Control-Allow-Origin: *`, takže se volá přímo
+> z prohlížeče (`lib/ares.ts`) — žádný proxy/backend není potřeba a lookup
+> funguje i v `next dev`. Ruční zadání klienta je vždy plně podporováno.
