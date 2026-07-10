@@ -4,25 +4,22 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ProjectForm } from "@/components/ProjectForm";
+import { PageHeader } from "@/components/PageHeader";
+import { IconArrowLeft } from "@/components/icons";
 import { strings } from "@/lib/strings";
 
 function NovyProjekt() {
   const params = useSearchParams();
   const clientIdParam = params.get("clientId");
   const presetClientId = clientIdParam ? Number(clientIdParam) : undefined;
-  // Když přicházíme od klienta, zpět míří na jeho detail; jinak na seznam projektů.
-  const backHref = presetClientId
-    ? `/klienti/detail/?id=${presetClientId}`
-    : "/projekty";
+  const backHref = presetClientId ? `/klienti/detail/?id=${presetClientId}` : "/projekty";
 
   return (
     <>
       <Link href={backHref} className="link-back">
-        ← {strings.common.back}
+        <IconArrowLeft /> {strings.common.back}
       </Link>
-      <header className="page-header">
-        <h1>{strings.projekty.newTitle}</h1>
-      </header>
+      <PageHeader title={strings.projekty.newTitle} />
       <ProjectForm presetClientId={presetClientId} />
     </>
   );
@@ -30,7 +27,7 @@ function NovyProjekt() {
 
 export default function NovyProjektPage() {
   return (
-    <Suspense fallback={<p style={{ color: "var(--text-muted)" }}>{strings.common.loading}</p>}>
+    <Suspense fallback={<p className="loading-text">{strings.common.loading}</p>}>
       <NovyProjekt />
     </Suspense>
   );

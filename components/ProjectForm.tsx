@@ -10,7 +10,7 @@ import { ClientForm } from "@/components/ClientForm";
 const s = strings.projekty;
 
 type FormState = {
-  clientId: string; // v UI text; 0/"" = nevybráno
+  clientId: string;
   name: string;
   description: string;
   startDate: string;
@@ -22,7 +22,12 @@ type FormState = {
 
 function toFormState(p?: Project, presetClientId?: number): FormState {
   return {
-    clientId: p?.clientId != null ? String(p.clientId) : presetClientId != null ? String(presetClientId) : "",
+    clientId:
+      p?.clientId != null
+        ? String(p.clientId)
+        : presetClientId != null
+        ? String(presetClientId)
+        : "",
     name: p?.name ?? "",
     description: p?.description ?? "",
     startDate: p?.startDate ?? "",
@@ -48,7 +53,6 @@ export function ProjectForm({
   const [creatingClient, setCreatingClient] = useState(false);
 
   const clients = useLiveQuery(() => getDb().clients.orderBy("name").toArray(), []);
-  // Klienta lze měnit jen když nejde o preset ani editaci.
   const lockClient = presetClientId != null || existing != null;
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -57,7 +61,6 @@ export function ProjectForm({
 
   function onClientChange(value: string) {
     setClientError(null);
-    // Nabídni výchozí sazbu klienta, pokud je pole prázdné a fakturujeme hodinově.
     const c = clients?.find((cl) => cl.id === Number(value));
     setForm((f) => ({
       ...f,
@@ -106,8 +109,7 @@ export function ProjectForm({
     }
   }
 
-  const rateLabel =
-    form.billingType === "fixed" ? s.fields.rateFixed : s.fields.rateHourly;
+  const rateLabel = form.billingType === "fixed" ? s.fields.rateFixed : s.fields.rateHourly;
 
   return (
     <div className="form">
@@ -175,43 +177,24 @@ export function ProjectForm({
         />
       </div>
 
-      <div className="field-inline">
+      <div className="field-grid">
         <div className="field">
           <label htmlFor="startDate">{s.fields.startDate}</label>
-          <input
-            id="startDate"
-            type="date"
-            value={form.startDate}
-            onChange={(e) => set("startDate", e.target.value)}
-          />
+          <input id="startDate" type="date" value={form.startDate} onChange={(e) => set("startDate", e.target.value)} />
         </div>
         <div className="field">
           <label htmlFor="endDate">{s.fields.endDate}</label>
-          <input
-            id="endDate"
-            type="date"
-            value={form.endDate}
-            onChange={(e) => set("endDate", e.target.value)}
-          />
+          <input id="endDate" type="date" value={form.endDate} onChange={(e) => set("endDate", e.target.value)} />
         </div>
       </div>
 
-      {/* Typ fakturace — segmentovaný přepínač */}
       <div className="field">
         <label>{s.fields.billingType}</label>
-        <div className="segmented" role="group">
-          <button
-            type="button"
-            data-active={form.billingType === "hourly"}
-            onClick={() => set("billingType", "hourly")}
-          >
+        <div className="segmented" role="group" aria-label={s.fields.billingType}>
+          <button type="button" data-active={form.billingType === "hourly"} onClick={() => set("billingType", "hourly")}>
             {s.fields.hourly}
           </button>
-          <button
-            type="button"
-            data-active={form.billingType === "fixed"}
-            onClick={() => set("billingType", "fixed")}
-          >
+          <button type="button" data-active={form.billingType === "fixed"} onClick={() => set("billingType", "fixed")}>
             {s.fields.fixed}
           </button>
         </div>
@@ -230,28 +213,14 @@ export function ProjectForm({
 
       <div className="field">
         <label htmlFor="notes">{s.fields.notes}</label>
-        <textarea
-          id="notes"
-          value={form.notes}
-          onChange={(e) => set("notes", e.target.value)}
-        />
+        <textarea id="notes" value={form.notes} onChange={(e) => set("notes", e.target.value)} />
       </div>
 
       <div className="form-actions">
-        <button
-          type="button"
-          className="btn-secondary"
-          onClick={() => router.back()}
-          disabled={saving}
-        >
+        <button type="button" className="btn btn-secondary" onClick={() => router.back()} disabled={saving}>
           {strings.common.cancel}
         </button>
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={handleSubmit}
-          disabled={saving}
-        >
+        <button type="button" className="btn btn-primary" onClick={handleSubmit} disabled={saving}>
           {strings.common.save}
         </button>
       </div>

@@ -1,8 +1,27 @@
-import type { ProjectStatus } from "@/lib/project";
-import { strings } from "@/lib/strings";
+import type { ReactNode } from "react";
+import type { BadgeTone, BadgeSpec } from "@/lib/status";
 
-export function StatusBadge({ status }: { status: ProjectStatus }) {
-  const label =
-    status === "ended" ? strings.projekty.statusEnded : strings.projekty.statusActive;
-  return <span className={`badge badge-${status}`}>{label}</span>;
+/**
+ * Odznak stavu — barva + text (nikdy jen barva). Volitelně ikona.
+ * Přijme buď `spec` ({ tone, label }) z lib/status, nebo přímo tone+label.
+ */
+export function StatusBadge({
+  spec,
+  tone,
+  label,
+  icon,
+}: {
+  spec?: BadgeSpec;
+  tone?: BadgeTone;
+  label?: string;
+  icon?: ReactNode;
+}) {
+  const t = spec?.tone ?? tone ?? "neutral";
+  const l = spec?.label ?? label ?? "";
+  return (
+    <span className={`badge badge-${t}`}>
+      {icon}
+      {l}
+    </span>
+  );
 }

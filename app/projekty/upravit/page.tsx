@@ -6,6 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getDb } from "@/lib/db";
 import { ProjectForm } from "@/components/ProjectForm";
+import { PageHeader } from "@/components/PageHeader";
+import { IconArrowLeft } from "@/components/icons";
 import { strings } from "@/lib/strings";
 
 const s = strings.projekty;
@@ -20,13 +22,13 @@ function EditProject() {
   );
 
   if (project === undefined) {
-    return <p style={{ color: "var(--text-muted)" }}>{strings.common.loading}</p>;
+    return <p className="loading-text">{strings.common.loading}</p>;
   }
   if (!project) {
     return (
       <>
         <Link href="/projekty" className="link-back">
-          ← {s.title}
+          <IconArrowLeft /> {s.title}
         </Link>
         <p>{s.notFound}</p>
       </>
@@ -36,11 +38,9 @@ function EditProject() {
   return (
     <>
       <Link href={`/projekty/detail/?id=${id}`} className="link-back">
-        ← {project.name}
+        <IconArrowLeft /> {project.name}
       </Link>
-      <header className="page-header">
-        <h1>{s.editTitle}</h1>
-      </header>
+      <PageHeader title={s.editTitle} />
       <ProjectForm existing={project} />
     </>
   );
@@ -48,7 +48,7 @@ function EditProject() {
 
 export default function UpravitProjektPage() {
   return (
-    <Suspense fallback={<p style={{ color: "var(--text-muted)" }}>{strings.common.loading}</p>}>
+    <Suspense fallback={<p className="loading-text">{strings.common.loading}</p>}>
       <EditProject />
     </Suspense>
   );

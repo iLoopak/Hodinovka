@@ -1,12 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Statický export — 100% klientská PWA, žádný server runtime.
-  // (ARES proxy v Fázi 1 poběží jako samostatná Vercel Edge Function mimo tento export.)
   output: "export",
   images: {
     unoptimized: true,
   },
   trailingSlash: true,
+  // Kořen pro trasování souborů = tato složka (v nadřazené složce je cizí lockfile).
+  outputFileTracingRoot: import.meta.dirname,
 };
 
 export default nextConfig;

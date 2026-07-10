@@ -13,10 +13,42 @@ export const strings = {
   },
 
   nav: {
+    prehled: "Přehled",
+    prace: "Práce",
     klienti: "Klienti",
+    faktury: "Faktury",
     projekty: "Projekty",
     vykazy: "Výkazy práce",
-    faktury: "Faktury",
+  },
+
+  prehled: {
+    title: "Přehled",
+    greetingMorning: "Dobré ráno",
+    greetingDay: "Dobrý den",
+    greetingEvening: "Dobrý večer",
+    unbilledLabel: "Nevyfakturováno",
+    unbilledSubEmpty: "Zatím nemáte zapsanou žádnou práci k fakturaci.",
+    unbilledSub: (hours: string) => `${hours} h připravených k fakturaci`,
+    onboardingTitle: "Vítejte v Hodinovce",
+    onboardingSub:
+      "Zapisujte odpracovaný čas, sledujte nevyfakturovanou hodnotu a vystavujte faktury — vše lokálně ve vašem zařízení.",
+    pipelineWork: "Práce",
+    pipelineValue: "Hodnota",
+    pipelineInvoice: "Faktura",
+    pipelinePaid: "Zaplaceno",
+    logWork: "Zapsat práci",
+    logWorkDesc: "Odpracované hodiny",
+    newInvoice: "Nová faktura",
+    newInvoiceDesc: "Vystavit doklad",
+    recentWork: "Poslední práce",
+    recentWorkEmpty: "Zatím žádná zapsaná práce.",
+    attention: "Vyžaduje pozornost",
+    attentionEmpty: "Žádné faktury po splatnosti ani před splatností.",
+    summary: "Souhrn",
+    statsClients: "Klienti",
+    statsProjects: "Aktivní projekty",
+    statsUnbilledHours: "Nevyfakt. hodiny",
+    upcoming: "Připravujeme",
   },
 
   klienti: {
@@ -31,10 +63,16 @@ export const strings = {
     notFound: "Klient nenalezen.",
     // Sekce v detailu
     contact: "Kontakt",
+    contactBilling: "Kontakt a fakturační údaje",
     projects: "Projekty",
+    work: "Výkazy práce",
     invoices: "Faktury",
     noProjects: "Zatím žádné projekty.",
+    noProjectsHint: "Přidejte projekt a začněte sledovat odpracovaný čas.",
+    noWork: "Zatím žádná zapsaná práce.",
     noInvoices: "Zatím žádné faktury.",
+    unbilled: "Nevyfakturováno",
+    newProject: "Nový projekt",
     newInvoice: "Nová faktura",
     // Mazání
     deleteConfirm: "Opravdu smazat tohoto klienta?",
@@ -112,6 +150,9 @@ export const strings = {
     empty: "Zatím tu nejsou žádné záznamy práce.",
     emptyHint: "Zaznamenejte odpracované hodiny k projektu nebo klientovi.",
     add: "Nový záznam",
+    upcomingTitle: "Výkazy práce budou brzy",
+    upcomingHint:
+      "Zápis odpracovaného času připravujeme v další fázi. Zatím si můžete založit klienty a projekty.",
   },
 
   faktury: {
@@ -119,6 +160,16 @@ export const strings = {
     empty: "Zatím tu nejsou žádné faktury.",
     emptyHint: "Vytvořte fakturu z výkazů práce nebo ručně.",
     add: "Nová faktura",
+    upcomingTitle: "Fakturace bude brzy",
+    upcomingHint:
+      "Vystavování faktur a export do PDF připravujeme v dalších fázích.",
+    statuses: {
+      draft: "Koncept",
+      issued: "Vystavena",
+      dueSoon: "Blíží se splatnost",
+      overdue: "Po splatnosti",
+      paid: "Zaplaceno",
+    },
   },
 
   common: {

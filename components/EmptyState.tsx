@@ -1,35 +1,44 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
+import { IconInbox } from "@/components/icons";
 
+/**
+ * Střídmý prázdný / „připravujeme" stav.
+ * - `actionHref` → akce je odkaz,
+ * - jinak `actionLabel` bez href → čestně zakázané tlačítko (funkce zatím není).
+ */
 export function EmptyState({
-  emoji,
+  icon,
   title,
-  hint,
+  description,
   actionLabel,
   actionHref,
 }: {
-  emoji: string;
+  icon?: ReactNode;
   title: string;
-  hint: string;
-  actionLabel: string;
-  /** Když je zadáno, akční tlačítko je odkaz; jinak je jen dekorativní (disabled). */
+  description?: string;
+  actionLabel?: string;
   actionHref?: string;
 }) {
   return (
     <div className="empty-state">
-      <span className="empty-emoji" aria-hidden="true">
-        {emoji}
-      </span>
-      <p className="empty-title">{title}</p>
-      <p>{hint}</p>
-      {actionHref ? (
-        <Link className="btn-primary" href={actionHref}>
-          {actionLabel}
-        </Link>
-      ) : (
-        <button className="btn-primary" type="button" disabled>
-          {actionLabel}
-        </button>
-      )}
+      <span className="es-icon">{icon ?? <IconInbox />}</span>
+      <div className="es-title">{title}</div>
+      {description && <p className="es-desc">{description}</p>}
+      {actionLabel &&
+        (actionHref ? (
+          <div className="es-action">
+            <Link className="btn btn-primary" href={actionHref}>
+              {actionLabel}
+            </Link>
+          </div>
+        ) : (
+          <div className="es-action">
+            <button className="btn btn-secondary" type="button" disabled>
+              {actionLabel}
+            </button>
+          </div>
+        ))}
     </div>
   );
 }

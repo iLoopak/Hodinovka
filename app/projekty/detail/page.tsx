@@ -6,13 +6,19 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getDb } from "@/lib/db";
 import { strings } from "@/lib/strings";
-import { formatDate } from "@/lib/format";
-import { projectStatus, billingSummary } from "@/lib/project";
+import { formatDate, formatMoney } from "@/lib/format";
+import { billingSummary } from "@/lib/project";
+import { projectBadge } from "@/lib/status";
+import { computeUnbilled } from "@/lib/metrics";
+import { SectionHeader } from "@/components/SectionHeader";
 import { StatusBadge } from "@/components/StatusBadge";
+import { MetricCard } from "@/components/MetricCard";
+import { EmptyState } from "@/components/EmptyState";
+import { IconArrowLeft, IconEdit, IconTrash, IconFolder, IconWork, IconInvoices } from "@/components/icons";
 
 const s = strings.projekty;
 
-function DetailRow({ label, value }: { label: string; value?: string | null }) {
+function DetailRow({ label, value }: { label: string; value?: React.ReactNode }) {
   if (!value) return null;
   return (
     <div className="detail-row">
@@ -45,13 +51,13 @@ function ProjectDetail() {
   );
 
   if (project === undefined) {
-    return <p style={{ color: "var(--text-muted)" }}>{strings.common.loading}</p>;
+    return <p className="loading-text">{strings.common.loading}</p>;
   }
   if (!project) {
     return (
       <>
         <Link href="/projekty" className="link-back">
-          ← {s.title}
+          <IconArrowLeft /> {s.title}
         </Link>
         <p>{s.notFound}</p>
       </>
@@ -66,6 +72,11 @@ function ProjectDetail() {
     router.replace("/projekty");
   }
 
+  const unbilled =
+    timeEntries && client
+      ? computeUnbilled(timeEntries, [project], [client])
+      : { minutes: 0, value: 0, entryCount: 0 };
+
   const dates =
     project.startDate || project.endDate
       ? `${formatDate(project.startDate) || "…"} – ${formatDate(project.endDate) || "…"}`
@@ -74,65 +85,56 @@ function ProjectDetail() {
   return (
     <>
       <Link href="/projekty" className="link-back">
-        ← {s.title}
+        <IconArrowLeft /> {s.title}
       </Link>
-      <header className="page-header with-action">
-        <h1>{project.name}</h1>
-        <StatusBadge status={projectStatus(project)} />
-      </header>
 
-      <section className="detail-section">
-        <h2>{s.info}</h2>
-        {client && (
-          <div className="detail-row">
-            <span className="detail-label">{s.fields.client}</span>
-            <span className="detail-value">
+      <div className="detail-hero">
+        <span className="monogram" data-size="lg" aria-hidden="true">
+          <IconFolder />
+        </span>
+        <div>
+          <h1>{project.name}</h1>
+          <div className="dh-context" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" }}>
+            {client && (
               <Link href={`/klienti/detail/?id=${client.id}`}>{client.name}</Link>
-            </span>
+            )}
+            <StatusBadge spec={projectBadge(project)} />
           </div>
-        )}
+        </div>
+      </div>
+
+      <div className="detail-actions">
+        <Link href={`/projekty/upravit/?id=${id}`} className="btn btn-secondary">
+          <IconEdit /> {strings.common.edit}
+        </Link>
+      </div>
+
+      <div className="stat-grid" style={{ marginBottom: "var(--space-5)" }}>
+        <MetricCard label={s.timeEntries} value={timeEntries?.length ?? 0} />
+        <MetricCard label={strings.klienti.unbilled} value={formatMoney(unbilled.value, client?.currency)} />
+      </div>
+
+      <section className="panel">
+        <SectionHeader title={s.info} />
         <DetailRow label={s.fields.description} value={project.description} />
-        <DetailRow label="Období" value={dates} />
+        <DetailRow label="Období" value={dates ? <span className="tnum">{dates}</span> : null} />
         <DetailRow label={s.fields.billingType} value={billingSummary(project, client?.currency)} />
         <DetailRow label={s.fields.notes} value={project.notes} />
       </section>
 
-      <section className="detail-section">
-        <h2>{s.timeEntries}</h2>
-        {timeEntries && timeEntries.length > 0 ? (
-          <p style={{ margin: 0 }}>{timeEntries.length}×</p>
-        ) : (
-          <p style={{ color: "var(--text-muted)", margin: 0 }}>{s.noTimeEntries}</p>
-        )}
+      <section className="panel">
+        <SectionHeader title={s.timeEntries} />
+        <EmptyState icon={<IconWork />} title={strings.klienti.noWork} description={strings.vykazy.upcomingHint} />
       </section>
 
-      <section className="detail-section">
-        <h2>{s.invoices}</h2>
-        {invoices && invoices.length > 0 ? (
-          <div className="card-list">
-            {invoices.map((inv) => (
-              <div key={inv.id} className="card">
-                <div className="card-title">{inv.invoiceNumber}</div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p style={{ color: "var(--text-muted)", margin: 0 }}>{s.noInvoices}</p>
-        )}
+      <section className="panel">
+        <SectionHeader title={s.invoices} />
+        <EmptyState icon={<IconInvoices />} title={s.noInvoices} description={strings.faktury.upcomingHint} />
       </section>
 
-      <div className="form-actions">
-        <Link href={`/projekty/upravit/?id=${id}`} className="btn-secondary">
-          {strings.common.edit}
-        </Link>
-        <button type="button" className="btn-secondary btn-danger" onClick={handleDelete}>
-          {strings.common.delete}
-        </button>
-      </div>
-      {/* Rychlá akce „Nová faktura" — plná funkce přijde ve Fázi 4/5. */}
-      <div style={{ marginTop: 12 }}>
-        <button type="button" className="btn-primary" style={{ width: "100%" }} disabled>
-          {s.newInvoice}
+      <div className="danger-zone">
+        <button type="button" className="btn btn-danger" onClick={handleDelete}>
+          <IconTrash /> {strings.common.delete}
         </button>
       </div>
     </>
@@ -141,7 +143,7 @@ function ProjectDetail() {
 
 export default function ProjektDetailPage() {
   return (
-    <Suspense fallback={<p style={{ color: "var(--text-muted)" }}>{strings.common.loading}</p>}>
+    <Suspense fallback={<p className="loading-text">{strings.common.loading}</p>}>
       <ProjectDetail />
     </Suspense>
   );

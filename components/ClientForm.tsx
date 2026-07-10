@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getDb, type Client } from "@/lib/db";
 import { fetchAresByIco, AresError } from "@/lib/ares";
 import { strings } from "@/lib/strings";
+import { IconSearch } from "@/components/icons";
 
 const s = strings.klienti;
 
@@ -18,10 +19,13 @@ type FormState = {
   zip: string;
   email: string;
   phone: string;
-  defaultRate: string; // v UI jako text, převádíme až při uložení
+  defaultRate: string;
   currency: string;
   notes: string;
 };
+
+// Pole, která umí doplnit ARES (pro jemné potvrzení po načtení).
+type AresFillable = "name" | "dic" | "street" | "streetNumber" | "city" | "zip";
 
 function toFormState(client?: Client): FormState {
   return {
@@ -47,9 +51,7 @@ export function ClientForm({
   submitLabel,
 }: {
   existing?: Client;
-  /** Když je zadáno, po uložení se místo navigace zavolá tento callback (pro vložení do jiného formuláře). */
   onSaved?: (id: number) => void;
-  /** Náhrada za výchozí „Zpět" chování tlačítka Zrušit. */
   onCancel?: () => void;
   submitLabel?: string;
 }) {
@@ -58,6 +60,7 @@ export function ClientForm({
   const [nameError, setNameError] = useState<string | null>(null);
   const [aresLoading, setAresLoading] = useState(false);
   const [aresError, setAresError] = useState<string | null>(null);
+  const [filled, setFilled] = useState<Partial<Record<AresFillable, boolean>>>({});
   const [saving, setSaving] = useState(false);
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -69,7 +72,6 @@ export function ClientForm({
     setAresLoading(true);
     try {
       const r = await fetchAresByIco(form.ico);
-      // Přepíšeme jen pole, která ARES vrátil; zbytek necháme být.
       setForm((f) => ({
         ...f,
         name: r.name || f.name,
@@ -80,24 +82,30 @@ export function ClientForm({
         dic: r.dic ?? f.dic,
         ico: r.ico || f.ico,
       }));
+      const just: Partial<Record<AresFillable, boolean>> = {};
+      if (r.name) just.name = true;
+      if (r.dic) just.dic = true;
+      if (r.street) just.street = true;
+      if (r.streetNumber) just.streetNumber = true;
+      if (r.city) just.city = true;
+      if (r.zip) just.zip = true;
+      setFilled(just);
       setNameError(null);
+      // Potvrzení po chvíli zmizí (jemné, ne rušivé).
+      window.setTimeout(() => setFilled({}), 1600);
     } catch (err) {
-      setAresError(
-        err instanceof AresError ? err.message : "Načtení z ARES selhalo."
-      );
+      setAresError(err instanceof AresError ? err.message : "Načtení z ARES selhalo.");
     } finally {
       setAresLoading(false);
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit() {
     const name = form.name.trim();
     if (!name) {
       setNameError(s.nameRequired);
       return;
     }
-
     setSaving(true);
     const rateNum = form.defaultRate.trim()
       ? Number(form.defaultRate.replace(",", "."))
@@ -124,18 +132,27 @@ export function ClientForm({
       if (onSaved) onSaved(existing.id);
       else router.replace(`/klienti/detail/?id=${existing.id}`);
     } else {
-      const id = (await db.clients.add(record)) as number;
-      if (onSaved) onSaved(id);
-      else router.replace(`/klienti/detail/?id=${id}`);
+      const newId = (await db.clients.add(record)) as number;
+      if (onSaved) onSaved(newId);
+      else router.replace(`/klienti/detail/?id=${newId}`);
     }
   }
 
+  const df = (k: AresFillable) => (filled[k] ? "true" : undefined);
+
   return (
-    <form className="form" onSubmit={handleSubmit} noValidate>
-      {/* IČO + načtení z ARES */}
-      <div className="field-inline">
-        <div className="field">
-          <label htmlFor="ico">{s.fields.ico}</label>
+    <form
+      className="form"
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit();
+      }}
+      noValidate
+    >
+      {/* IČO + ARES jako jedna spojená interakce */}
+      <div className="field">
+        <label htmlFor="ico">{s.fields.ico}</label>
+        <div className="ico-lookup">
           <input
             id="ico"
             inputMode="numeric"
@@ -143,23 +160,25 @@ export function ClientForm({
             onChange={(e) => set("ico", e.target.value)}
             placeholder="12345678"
           />
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleAres}
+            disabled={aresLoading}
+          >
+            <IconSearch />
+            {aresLoading ? s.fields.loading : s.fields.loadFromAres}
+          </button>
         </div>
-        <button
-          type="button"
-          className="btn-secondary"
-          onClick={handleAres}
-          disabled={aresLoading}
-        >
-          {aresLoading ? s.fields.loading : s.fields.loadFromAres}
-        </button>
+        {aresError && <p className="field-error">{aresError}</p>}
       </div>
-      {aresError && <p className="field-error">{aresError}</p>}
 
       <div className="field">
         <label htmlFor="name">{s.fields.name} *</label>
         <input
           id="name"
           value={form.name}
+          data-filled={df("name")}
           onChange={(e) => {
             set("name", e.target.value);
             if (nameError) setNameError(null);
@@ -170,110 +189,70 @@ export function ClientForm({
 
       <div className="field">
         <label htmlFor="dic">{s.fields.dic}</label>
-        <input id="dic" value={form.dic} onChange={(e) => set("dic", e.target.value)} />
+        <input id="dic" value={form.dic} data-filled={df("dic")} onChange={(e) => set("dic", e.target.value)} />
       </div>
 
-      <div className="field-inline">
+      <div className="fieldset">
+        <div className="fieldset-legend">{s.fields.address}</div>
+        <div className="field-grid grow-first">
+          <div className="field">
+            <label htmlFor="street">{s.fields.street}</label>
+            <input id="street" value={form.street} data-filled={df("street")} onChange={(e) => set("street", e.target.value)} />
+          </div>
+          <div className="field">
+            <label htmlFor="streetNumber">{s.fields.streetNumber}</label>
+            <input id="streetNumber" value={form.streetNumber} data-filled={df("streetNumber")} onChange={(e) => set("streetNumber", e.target.value)} placeholder="778/3a" />
+          </div>
+        </div>
+        <div className="field-grid grow-first">
+          <div className="field">
+            <label htmlFor="city">{s.fields.city}</label>
+            <input id="city" value={form.city} data-filled={df("city")} onChange={(e) => set("city", e.target.value)} />
+          </div>
+          <div className="field">
+            <label htmlFor="zip">{s.fields.zip}</label>
+            <input id="zip" inputMode="numeric" value={form.zip} data-filled={df("zip")} onChange={(e) => set("zip", e.target.value)} placeholder="140 00" />
+          </div>
+        </div>
+      </div>
+
+      <div className="field-grid">
         <div className="field">
-          <label htmlFor="street">{s.fields.street}</label>
-          <input
-            id="street"
-            value={form.street}
-            onChange={(e) => set("street", e.target.value)}
-          />
-        </div>
-        <div className="field" style={{ maxWidth: 140 }}>
-          <label htmlFor="streetNumber">{s.fields.streetNumber}</label>
-          <input
-            id="streetNumber"
-            value={form.streetNumber}
-            onChange={(e) => set("streetNumber", e.target.value)}
-            placeholder="778/3a"
-          />
-        </div>
-      </div>
-
-      <div className="field-inline">
-        <div className="field" style={{ maxWidth: 120 }}>
-          <label htmlFor="zip">{s.fields.zip}</label>
-          <input
-            id="zip"
-            inputMode="numeric"
-            value={form.zip}
-            onChange={(e) => set("zip", e.target.value)}
-            placeholder="140 00"
-          />
+          <label htmlFor="email">{s.fields.email}</label>
+          <input id="email" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} />
         </div>
         <div className="field">
-          <label htmlFor="city">{s.fields.city}</label>
-          <input
-            id="city"
-            value={form.city}
-            onChange={(e) => set("city", e.target.value)}
-          />
+          <label htmlFor="phone">{s.fields.phone}</label>
+          <input id="phone" type="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)} />
         </div>
       </div>
 
-      <div className="field">
-        <label htmlFor="email">{s.fields.email}</label>
-        <input
-          id="email"
-          type="email"
-          value={form.email}
-          onChange={(e) => set("email", e.target.value)}
-        />
-      </div>
-
-      <div className="field">
-        <label htmlFor="phone">{s.fields.phone}</label>
-        <input
-          id="phone"
-          type="tel"
-          value={form.phone}
-          onChange={(e) => set("phone", e.target.value)}
-        />
-      </div>
-
-      <div className="field-inline">
+      <div className="field-grid grow-first">
         <div className="field">
           <label htmlFor="rate">{s.fields.defaultRate}</label>
-          <input
-            id="rate"
-            inputMode="decimal"
-            value={form.defaultRate}
-            onChange={(e) => set("defaultRate", e.target.value)}
-            placeholder="800"
-          />
+          <input id="rate" inputMode="decimal" value={form.defaultRate} onChange={(e) => set("defaultRate", e.target.value)} placeholder="800" />
         </div>
-        <div className="field" style={{ maxWidth: 110 }}>
+        <div className="field">
           <label htmlFor="currency">{s.fields.currency}</label>
-          <input
-            id="currency"
-            value={form.currency}
-            onChange={(e) => set("currency", e.target.value)}
-          />
+          <input id="currency" value={form.currency} onChange={(e) => set("currency", e.target.value)} />
         </div>
       </div>
 
       <div className="field">
         <label htmlFor="notes">{s.fields.notes}</label>
-        <textarea
-          id="notes"
-          value={form.notes}
-          onChange={(e) => set("notes", e.target.value)}
-        />
+        <textarea id="notes" value={form.notes} onChange={(e) => set("notes", e.target.value)} />
       </div>
 
       <div className="form-actions">
         <button
           type="button"
-          className="btn-secondary"
+          className="btn btn-secondary"
           onClick={onCancel ?? (() => router.back())}
           disabled={saving}
         >
           {strings.common.cancel}
         </button>
-        <button type="submit" className="btn-primary" disabled={saving}>
+        <button type="submit" className="btn btn-primary" disabled={saving}>
           {submitLabel ?? strings.common.save}
         </button>
       </div>
