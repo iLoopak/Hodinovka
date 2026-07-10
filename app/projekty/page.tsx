@@ -30,12 +30,21 @@ export default function ProjektyPage() {
     <>
       <header className="page-header with-action">
         <h1>{s.title}</h1>
+        <Link href="/projekty/novy" className="btn-primary">
+          {s.add}
+        </Link>
       </header>
 
       {projects === undefined ? (
         <p style={{ color: "var(--text-muted)" }}>{strings.common.loading}</p>
       ) : projects.length === 0 ? (
-        <EmptyState emoji="📁" title={s.empty} hint={s.emptyHint} actionLabel={s.add} />
+        <EmptyState
+          emoji="📁"
+          title={s.empty}
+          hint={s.emptyHint}
+          actionLabel={s.add}
+          actionHref="/projekty/novy"
+        />
       ) : (
         <>
           <input

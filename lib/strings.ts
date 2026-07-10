@@ -60,12 +60,13 @@ export const strings = {
     },
     nameRequired: "Vyplňte název klienta.",
     saved: "Klient uložen.",
+    createInline: "Vytvořit klienta",
   },
 
   projekty: {
     title: "Projekty",
     empty: "Zatím tu nejsou žádné projekty.",
-    emptyHint: "Projekty se vytvářejí u konkrétního klienta.",
+    emptyHint: "Vytvořte projekt a přiřaďte ho ke klientovi (nebo rovnou založte nového).",
     add: "Nový projekt",
     search: "Hledat projekt…",
     noResults: "Žádný projekt neodpovídá hledání.",

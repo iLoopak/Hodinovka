@@ -381,6 +381,14 @@ body {
   white-space: nowrap;
 }
 
+/* --- Inline nested creation (např. nový klient uvnitř formuláře projektu) --- */
+.inline-create {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+
 /* --- Segmented control (billing type) --- */
 .segmented {
   display: flex;

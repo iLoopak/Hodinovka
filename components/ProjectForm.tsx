@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
-import { getDb, type Project, type BillingType, type Client } from "@/lib/db";
+import { getDb, type Project, type BillingType } from "@/lib/db";
 import { strings } from "@/lib/strings";
+import { ClientForm } from "@/components/ClientForm";
 
 const s = strings.projekty;
 
@@ -44,6 +45,7 @@ export function ProjectForm({
   const [nameError, setNameError] = useState<string | null>(null);
   const [clientError, setClientError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [creatingClient, setCreatingClient] = useState(false);
 
   const clients = useLiveQuery(() => getDb().clients.orderBy("name").toArray(), []);
   // Klienta lze měnit jen když nejde o preset ani editaci.
@@ -67,8 +69,7 @@ export function ProjectForm({
     }));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit() {
     const clientId = Number(form.clientId);
     const name = form.name.trim();
     let bad = false;
@@ -109,7 +110,7 @@ export function ProjectForm({
     form.billingType === "fixed" ? s.fields.rateFixed : s.fields.rateHourly;
 
   return (
-    <form className="form" onSubmit={handleSubmit} noValidate>
+    <div className="form">
       {/* Klient */}
       <div className="field">
         <label htmlFor="client">{s.fields.client} *</label>
@@ -119,11 +120,26 @@ export function ProjectForm({
             value={clients?.find((c) => c.id === Number(form.clientId))?.name ?? ""}
             disabled
           />
+        ) : creatingClient ? (
+          <div className="inline-create">
+            <ClientForm
+              submitLabel={strings.klienti.createInline}
+              onSaved={(id) => {
+                setForm((f) => ({ ...f, clientId: String(id) }));
+                setCreatingClient(false);
+                setClientError(null);
+              }}
+              onCancel={() => setCreatingClient(false)}
+            />
+          </div>
         ) : (
           <select
             id="client"
             value={form.clientId}
-            onChange={(e) => onClientChange(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value === "__new__") setCreatingClient(true);
+              else onClientChange(e.target.value);
+            }}
           >
             <option value="">{s.fields.selectClient}</option>
             {clients?.map((c) => (
@@ -131,12 +147,10 @@ export function ProjectForm({
                 {c.name}
               </option>
             ))}
+            <option value="__new__">+ {strings.klienti.add}</option>
           </select>
         )}
-        {clientError && <p className="field-error">{clientError}</p>}
-        {!lockClient && clients && clients.length === 0 && (
-          <p className="field-hint">{s.noClients}</p>
-        )}
+        {!creatingClient && clientError && <p className="field-error">{clientError}</p>}
       </div>
 
       <div className="field">
@@ -232,10 +246,15 @@ export function ProjectForm({
         >
           {strings.common.cancel}
         </button>
-        <button type="submit" className="btn-primary" disabled={saving}>
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={handleSubmit}
+          disabled={saving}
+        >
           {strings.common.save}
         </button>
       </div>
-    </form>
+    </div>
   );
 }
