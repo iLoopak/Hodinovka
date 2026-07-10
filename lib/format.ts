@@ -22,3 +22,9 @@ export function formatMoney(amount: number, currency = "CZK"): string {
   const n = new Intl.NumberFormat("cs-CZ", { maximumFractionDigits: 2 }).format(amount);
   return `${n} ${currency}`;
 }
+
+/** Minuty → hodiny jako české číslo, např. 90 → "1,5". */
+export function formatHours(minutes: number): string {
+  const hours = minutes / 60;
+  return new Intl.NumberFormat("cs-CZ", { maximumFractionDigits: 1 }).format(hours);
+}

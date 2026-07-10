@@ -5,9 +5,14 @@ import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getDb } from "@/lib/db";
 import { strings } from "@/lib/strings";
-import { projectStatus, billingSummary } from "@/lib/project";
+import { billingSummary } from "@/lib/project";
+import { projectBadge } from "@/lib/status";
+import { PageHeader } from "@/components/PageHeader";
+import { SearchField } from "@/components/SearchField";
 import { EmptyState } from "@/components/EmptyState";
+import { ListRow } from "@/components/ListRow";
 import { StatusBadge } from "@/components/StatusBadge";
+import { IconPlus, IconFolder } from "@/components/icons";
 
 const s = strings.projekty;
 
@@ -17,8 +22,7 @@ export default function ProjektyPage() {
   const projects = useLiveQuery(() => getDb().projects.orderBy("name").toArray(), []);
   const clients = useLiveQuery(() => getDb().clients.toArray(), []);
 
-  const clientName = (id: number) =>
-    clients?.find((c) => c.id === id)?.name ?? "";
+  const clientName = (id: number) => clients?.find((c) => c.id === id)?.name ?? "";
 
   const q = query.trim().toLowerCase();
   const filtered =
@@ -26,48 +30,47 @@ export default function ProjektyPage() {
       (p) => !q || p.name.toLowerCase().includes(q) || clientName(p.clientId).toLowerCase().includes(q)
     ) ?? [];
 
+  const addButton = (
+    <Link href="/projekty/novy" className="btn btn-primary">
+      <IconPlus />
+      {s.add}
+    </Link>
+  );
+
   return (
     <>
-      <header className="page-header with-action">
-        <h1>{s.title}</h1>
-        <Link href="/projekty/novy" className="btn-primary">
-          {s.add}
-        </Link>
-      </header>
+      <PageHeader title={s.title} action={addButton} />
 
       {projects === undefined ? (
-        <p style={{ color: "var(--text-muted)" }}>{strings.common.loading}</p>
+        <p className="loading-text">{strings.common.loading}</p>
       ) : projects.length === 0 ? (
         <EmptyState
-          emoji="📁"
+          icon={<IconFolder />}
           title={s.empty}
-          hint={s.emptyHint}
+          description={s.emptyHint}
           actionLabel={s.add}
           actionHref="/projekty/novy"
         />
       ) : (
         <>
-          <input
-            className="search-input"
-            type="search"
-            placeholder={s.search}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
+          <SearchField value={query} onChange={setQuery} placeholder={s.search} />
           {filtered.length === 0 ? (
-            <p style={{ color: "var(--text-muted)" }}>{s.noResults}</p>
+            <p className="muted">{s.noResults}</p>
           ) : (
-            <div className="card-list">
+            <div className="list">
               {filtered.map((p) => (
-                <Link key={p.id} href={`/projekty/detail/?id=${p.id}`} className="card">
-                  <div className="card-title-row">
-                    <span className="card-title">{p.name}</span>
-                    <StatusBadge status={projectStatus(p)} />
-                  </div>
-                  <div className="card-sub">
-                    {[clientName(p.clientId), billingSummary(p)].filter(Boolean).join(" · ")}
-                  </div>
-                </Link>
+                <ListRow
+                  key={p.id}
+                  href={`/projekty/detail/?id=${p.id}`}
+                  leading={
+                    <span className="monogram" aria-hidden="true">
+                      <IconFolder size={18} />
+                    </span>
+                  }
+                  title={p.name}
+                  subtitle={[clientName(p.clientId), billingSummary(p)].filter(Boolean).join(" · ")}
+                  meta={<StatusBadge spec={projectBadge(p)} />}
+                />
               ))}
             </div>
           )}

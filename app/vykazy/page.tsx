@@ -1,17 +1,16 @@
 import { strings } from "@/lib/strings";
+import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
+import { IconWork } from "@/components/icons";
 
 export default function VykazyPage() {
   return (
     <>
-      <header className="page-header">
-        <h1>{strings.vykazy.title}</h1>
-      </header>
+      <PageHeader title={strings.vykazy.title} />
       <EmptyState
-        emoji="⏱️"
-        title={strings.vykazy.empty}
-        hint={strings.vykazy.emptyHint}
-        actionLabel={strings.vykazy.add}
+        icon={<IconWork />}
+        title={strings.vykazy.upcomingTitle}
+        description={strings.vykazy.upcomingHint}
       />
     </>
   );

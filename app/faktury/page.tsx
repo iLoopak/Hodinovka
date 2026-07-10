@@ -1,17 +1,16 @@
 import { strings } from "@/lib/strings";
+import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
+import { IconInvoices } from "@/components/icons";
 
 export default function FakturyPage() {
   return (
     <>
-      <header className="page-header">
-        <h1>{strings.faktury.title}</h1>
-      </header>
+      <PageHeader title={strings.faktury.title} />
       <EmptyState
-        emoji="🧾"
-        title={strings.faktury.empty}
-        hint={strings.faktury.emptyHint}
-        actionLabel={strings.faktury.add}
+        icon={<IconInvoices />}
+        title={strings.faktury.upcomingTitle}
+        description={strings.faktury.upcomingHint}
       />
     </>
   );

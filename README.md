@@ -9,7 +9,15 @@ UI je zatím **jen česky**.
 - **Next.js** (App Router, statický export `output: "export"`)
 - **Dexie.js** (obálka nad IndexedDB)
 - **PWA** — `manifest.json` + vlastní service worker (offline shell)
+- **Geist** (lokální font přes `next/font`, offline-safe)
 - později: `@react-pdf/renderer` (PDF faktury), Capacitor (APK)
+
+## Vizuální systém
+
+Design tokeny (barvy, rozestupy, rádiusy, stíny, typografie) žijí v
+`app/globals.css` jako CSS proměnné; světlý i tmavý režim. Sdílené UI
+komponenty v `components/` (PageHeader, SectionHeader, ListRow, Monogram,
+StatusBadge, EmptyState, QuickAction, MetricCard, SearchField, AppNav, ikony).
 
 ## Vývoj
 
@@ -35,10 +43,10 @@ docs/           # roadmap.md + faktura-pdf-layout.md
 
 Postup vývoje po fázích viz [`docs/roadmap.md`](docs/roadmap.md).
 
-**Stav:** Fáze 2 (Projekty) hotová — projekty pod klientem (hodinová sazba
-/ fixní cena), stav Aktivní/Ukončený odvozený z dat, globální seznam
-projektů, detail s vazbami. Předchozí: Fáze 1 (Klienti) — správa klientů
-s doplněním z ARES podle IČO.
+**Stav:** Vizuální základ hotový — nový design systém, dashboard Přehled,
+app shell (mobil: spodní nav Přehled/Práce/Klienti/Faktury; desktop: postranní
+panel). Fáze 2 (Projekty) a Fáze 1 (Klienti + ARES) hotové. Fáze 3 (Výkazy
+práce) a fakturace zatím čekají — sekce mají čestné „připravujeme" stavy.
 
 > ARES posílá `Access-Control-Allow-Origin: *`, takže se volá přímo
 > z prohlížeče (`lib/ares.ts`) — žádný proxy/backend není potřeba a lookup

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
+import { GeistSans } from "geist/font/sans";
 import { strings } from "@/lib/strings";
-import { BottomNav } from "@/components/BottomNav";
+import { AppNav } from "@/components/AppNav";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import "./globals.css";
 
@@ -20,7 +21,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#2f6f4f",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f5f4f0" },
+    { media: "(prefers-color-scheme: dark)", color: "#141613" },
+  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -32,12 +36,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="cs">
+    <html lang="cs" className={GeistSans.variable}>
       <body>
         <ServiceWorkerRegister />
         <div className="app-shell">
-          <main className="app-content">{children}</main>
-          <BottomNav />
+          <AppNav />
+          <main className="app-main">{children}</main>
         </div>
       </body>
     </html>
