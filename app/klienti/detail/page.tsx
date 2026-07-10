@@ -66,6 +66,11 @@ function ClientDetail() {
       ? `${client.defaultRate} ${client.currency}/h`
       : null;
 
+  // Adresa: "Ulice 778/3a" na jeden řádek, "140 00 Praha" na druhý.
+  const streetLine = [client.street, client.streetNumber].filter(Boolean).join(" ");
+  const cityLine = [client.zip, client.city].filter(Boolean).join(" ");
+  const addressLines = [streetLine, cityLine].filter(Boolean);
+
   return (
     <>
       <Link href="/klienti" className="link-back">
@@ -79,7 +84,16 @@ function ClientDetail() {
         <h2>{s.contact}</h2>
         <DetailRow label={s.fields.ico} value={client.ico} />
         <DetailRow label={s.fields.dic} value={client.dic} />
-        <DetailRow label={s.fields.address} value={client.address} />
+        {addressLines.length > 0 && (
+          <div className="detail-row">
+            <span className="detail-label">{s.fields.address}</span>
+            <span className="detail-value">
+              {addressLines.map((line) => (
+                <div key={line}>{line}</div>
+              ))}
+            </span>
+          </div>
+        )}
         <DetailRow label={s.fields.email} value={client.email} />
         <DetailRow label={s.fields.phone} value={client.phone} />
         <DetailRow label={s.fields.defaultRate} value={rate} />

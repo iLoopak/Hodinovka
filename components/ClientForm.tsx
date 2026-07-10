@@ -12,7 +12,10 @@ type FormState = {
   name: string;
   ico: string;
   dic: string;
-  address: string;
+  street: string;
+  streetNumber: string;
+  city: string;
+  zip: string;
   email: string;
   phone: string;
   defaultRate: string; // v UI jako text, převádíme až při uložení
@@ -25,7 +28,10 @@ function toFormState(client?: Client): FormState {
     name: client?.name ?? "",
     ico: client?.ico ?? "",
     dic: client?.dic ?? "",
-    address: client?.address ?? "",
+    street: client?.street ?? "",
+    streetNumber: client?.streetNumber ?? "",
+    city: client?.city ?? "",
+    zip: client?.zip ?? "",
     email: client?.email ?? "",
     phone: client?.phone ?? "",
     defaultRate: client?.defaultRate != null ? String(client.defaultRate) : "",
@@ -55,7 +61,10 @@ export function ClientForm({ existing }: { existing?: Client }) {
       setForm((f) => ({
         ...f,
         name: r.name || f.name,
-        address: r.address || f.address,
+        street: r.street || f.street,
+        streetNumber: r.streetNumber || f.streetNumber,
+        city: r.city || f.city,
+        zip: r.zip || f.zip,
         dic: r.dic ?? f.dic,
         ico: r.ico || f.ico,
       }));
@@ -86,7 +95,10 @@ export function ClientForm({ existing }: { existing?: Client }) {
       name,
       ico: form.ico.trim() || undefined,
       dic: form.dic.trim() || undefined,
-      address: form.address.trim() || undefined,
+      street: form.street.trim() || undefined,
+      streetNumber: form.streetNumber.trim() || undefined,
+      city: form.city.trim() || undefined,
+      zip: form.zip.trim() || undefined,
       email: form.email.trim() || undefined,
       phone: form.phone.trim() || undefined,
       defaultRate: rateNum != null && !Number.isNaN(rateNum) ? rateNum : undefined,
@@ -147,13 +159,45 @@ export function ClientForm({ existing }: { existing?: Client }) {
         <input id="dic" value={form.dic} onChange={(e) => set("dic", e.target.value)} />
       </div>
 
-      <div className="field">
-        <label htmlFor="address">{s.fields.address}</label>
-        <textarea
-          id="address"
-          value={form.address}
-          onChange={(e) => set("address", e.target.value)}
-        />
+      <div className="field-inline">
+        <div className="field">
+          <label htmlFor="street">{s.fields.street}</label>
+          <input
+            id="street"
+            value={form.street}
+            onChange={(e) => set("street", e.target.value)}
+          />
+        </div>
+        <div className="field" style={{ maxWidth: 140 }}>
+          <label htmlFor="streetNumber">{s.fields.streetNumber}</label>
+          <input
+            id="streetNumber"
+            value={form.streetNumber}
+            onChange={(e) => set("streetNumber", e.target.value)}
+            placeholder="778/3a"
+          />
+        </div>
+      </div>
+
+      <div className="field-inline">
+        <div className="field" style={{ maxWidth: 120 }}>
+          <label htmlFor="zip">{s.fields.zip}</label>
+          <input
+            id="zip"
+            inputMode="numeric"
+            value={form.zip}
+            onChange={(e) => set("zip", e.target.value)}
+            placeholder="140 00"
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="city">{s.fields.city}</label>
+          <input
+            id="city"
+            value={form.city}
+            onChange={(e) => set("city", e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="field">

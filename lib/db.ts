@@ -16,7 +16,11 @@ export interface Client {
   name: string;
   ico?: string;
   dic?: string;
-  address?: string;
+  // Adresa rozdělená na jednotlivá pole (kvůli fakturám a ARES).
+  street?: string; // ulice, např. "Budějovická"
+  streetNumber?: string; // číslo popisné/orientační, např. "778/3a"
+  city?: string; // obec, např. "Praha"
+  zip?: string; // PSČ, např. "140 00"
   email?: string;
   phone?: string;
   defaultRate?: number;
@@ -108,6 +112,29 @@ export class HodinovkaDB extends Dexie {
       invoices: "++id, clientId, projectId, invoiceNumber, issueDate, status",
       businessProfile: "id", // jediný záznam, id: "default"
     });
+
+    // v2: adresa klienta rozdělena na ulici/číslo/město/PSČ.
+    // Indexy se nemění; migrace jen převede staré volné pole `address`
+    // (dáme ho do `street`, aby se data neztratila) a odstraní ho.
+    this.version(2)
+      .stores({
+        clients: "++id, name, ico",
+        projects: "++id, clientId, name, startDate",
+        timeEntries: "++id, clientId, projectId, date, billed, invoiceId",
+        invoices: "++id, clientId, projectId, invoiceNumber, issueDate, status",
+        businessProfile: "id",
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table("clients")
+          .toCollection()
+          .modify((c: Client & { address?: string }) => {
+            if (c.address && !c.street) {
+              c.street = c.address;
+            }
+            delete c.address;
+          });
+      });
   }
 }
 
