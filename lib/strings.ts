@@ -60,13 +60,51 @@ export const strings = {
     },
     nameRequired: "Vyplňte název klienta.",
     saved: "Klient uložen.",
+    createInline: "Vytvořit klienta",
   },
 
   projekty: {
     title: "Projekty",
     empty: "Zatím tu nejsou žádné projekty.",
-    emptyHint: "Projekty se vytvářejí u konkrétního klienta.",
+    emptyHint: "Vytvořte projekt a přiřaďte ho ke klientovi (nebo rovnou založte nového).",
     add: "Nový projekt",
+    search: "Hledat projekt…",
+    noResults: "Žádný projekt neodpovídá hledání.",
+    newTitle: "Nový projekt",
+    editTitle: "Upravit projekt",
+    notFound: "Projekt nenalezen.",
+    // Sekce v detailu
+    info: "O projektu",
+    timeEntries: "Výkazy práce",
+    invoices: "Faktury",
+    noTimeEntries: "Zatím žádné výkazy práce.",
+    noInvoices: "Zatím žádné faktury.",
+    newInvoice: "Nová faktura",
+    // Stavy
+    statusActive: "Aktivní",
+    statusEnded: "Ukončený",
+    // Mazání
+    deleteConfirm: "Opravdu smazat tento projekt?",
+    deleteWarnLinked:
+      "Na projekt jsou navázané výkazy práce nebo faktury. Smazáním o vazbu přijdete.",
+    // Pole formuláře
+    fields: {
+      client: "Klient",
+      selectClient: "Vyberte klienta…",
+      name: "Název projektu",
+      description: "Popis",
+      startDate: "Začátek",
+      endDate: "Konec",
+      billingType: "Typ fakturace",
+      hourly: "Hodinová sazba",
+      fixed: "Fixní cena",
+      rateHourly: "Hodinová sazba (Kč/h)",
+      rateFixed: "Fixní cena (Kč)",
+      notes: "Poznámky",
+    },
+    nameRequired: "Vyplňte název projektu.",
+    clientRequired: "Vyberte klienta.",
+    noClients: "Nejdřív si vytvořte klienta.",
   },
 
   vykazy: {

@@ -40,7 +40,19 @@ function toFormState(client?: Client): FormState {
   };
 }
 
-export function ClientForm({ existing }: { existing?: Client }) {
+export function ClientForm({
+  existing,
+  onSaved,
+  onCancel,
+  submitLabel,
+}: {
+  existing?: Client;
+  /** Když je zadáno, po uložení se místo navigace zavolá tento callback (pro vložení do jiného formuláře). */
+  onSaved?: (id: number) => void;
+  /** Náhrada za výchozí „Zpět" chování tlačítka Zrušit. */
+  onCancel?: () => void;
+  submitLabel?: string;
+}) {
   const router = useRouter();
   const [form, setForm] = useState<FormState>(() => toFormState(existing));
   const [nameError, setNameError] = useState<string | null>(null);
@@ -109,10 +121,12 @@ export function ClientForm({ existing }: { existing?: Client }) {
     const db = getDb();
     if (existing?.id != null) {
       await db.clients.update(existing.id, record);
-      router.replace(`/klienti/detail/?id=${existing.id}`);
+      if (onSaved) onSaved(existing.id);
+      else router.replace(`/klienti/detail/?id=${existing.id}`);
     } else {
-      const id = await db.clients.add(record);
-      router.replace(`/klienti/detail/?id=${id}`);
+      const id = (await db.clients.add(record)) as number;
+      if (onSaved) onSaved(id);
+      else router.replace(`/klienti/detail/?id=${id}`);
     }
   }
 
@@ -254,13 +268,13 @@ export function ClientForm({ existing }: { existing?: Client }) {
         <button
           type="button"
           className="btn-secondary"
-          onClick={() => router.back()}
+          onClick={onCancel ?? (() => router.back())}
           disabled={saving}
         >
           {strings.common.cancel}
         </button>
         <button type="submit" className="btn-primary" disabled={saving}>
-          {strings.common.save}
+          {submitLabel ?? strings.common.save}
         </button>
       </div>
     </form>

@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getDb } from "@/lib/db";
 import { strings } from "@/lib/strings";
+import { projectStatus, billingSummary } from "@/lib/project";
+import { StatusBadge } from "@/components/StatusBadge";
 
 const s = strings.klienti;
 
@@ -101,13 +103,22 @@ function ClientDetail() {
       </section>
 
       <section className="detail-section">
-        <h2>{s.projects}</h2>
+        <div className="section-header">
+          <h2>{s.projects}</h2>
+          <Link href={`/projekty/novy/?clientId=${id}`} className="section-action">
+            + {strings.projekty.add}
+          </Link>
+        </div>
         {projects && projects.length > 0 ? (
           <div className="card-list">
             {projects.map((p) => (
-              <div key={p.id} className="card">
-                <div className="card-title">{p.name}</div>
-              </div>
+              <Link key={p.id} href={`/projekty/detail/?id=${p.id}`} className="card">
+                <div className="card-title-row">
+                  <span className="card-title">{p.name}</span>
+                  <StatusBadge status={projectStatus(p)} />
+                </div>
+                <div className="card-sub">{billingSummary(p, client.currency)}</div>
+              </Link>
             ))}
           </div>
         ) : (
