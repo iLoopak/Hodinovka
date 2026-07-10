@@ -10,7 +10,7 @@
  * jen skořápku appky.
  */
 
-const CACHE = "hodinovka-shell-v2";
+const CACHE = "hodinovka-shell-v3";
 const SHELL = [
   "/",
   "/klienti/",
@@ -18,6 +18,9 @@ const SHELL = [
   "/klienti/detail/",
   "/klienti/upravit/",
   "/projekty/",
+  "/projekty/novy/",
+  "/projekty/detail/",
+  "/projekty/upravit/",
   "/vykazy/",
   "/faktury/",
   "/manifest.json",

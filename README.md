@@ -35,8 +35,10 @@ docs/           # roadmap.md + faktura-pdf-layout.md
 
 Postup vývoje po fázích viz [`docs/roadmap.md`](docs/roadmap.md).
 
-**Stav:** Fáze 1 (Klienti) hotová — správa klientů (přidat/upravit/smazat,
-hledání) s automatickým doplněním z ARES podle IČO.
+**Stav:** Fáze 2 (Projekty) hotová — projekty pod klientem (hodinová sazba
+/ fixní cena), stav Aktivní/Ukončený odvozený z dat, globální seznam
+projektů, detail s vazbami. Předchozí: Fáze 1 (Klienti) — správa klientů
+s doplněním z ARES podle IČO.
 
 > ARES posílá `Access-Control-Allow-Origin: *`, takže se volá přímo
 > z prohlížeče (`lib/ares.ts`) — žádný proxy/backend není potřeba a lookup
