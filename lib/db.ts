@@ -1,0 +1,126 @@
+import Dexie, { type EntityTable } from "dexie";
+
+/**
+ * Datový model aplikace — 100 % lokálně v IndexedDB (přes Dexie.js).
+ * Žádný backend, žádné účty, žádná synchronizace.
+ *
+ * Schéma odpovídá roadmapě (viz docs/roadmap.md → Data Model Summary).
+ * Verze schématu je záměrně oddělená, aby šlo v budoucnu přidávat migrace.
+ */
+
+export type BillingType = "hourly" | "fixed";
+export type InvoiceStatus = "draft" | "vystavena" | "zaplacena";
+
+export interface Client {
+  id?: number;
+  name: string;
+  ico?: string;
+  dic?: string;
+  address?: string;
+  email?: string;
+  phone?: string;
+  defaultRate?: number;
+  currency: string; // výchozí "CZK"
+  notes?: string;
+}
+
+export interface Project {
+  id?: number;
+  clientId: number;
+  name: string;
+  description?: string;
+  startDate?: string; // ISO datum (YYYY-MM-DD)
+  endDate?: string | null;
+  billingType: BillingType;
+  rate?: number; // hodinová sazba nebo fixní cena podle billingType
+  notes?: string;
+}
+
+export interface TimeEntry {
+  id?: number;
+  clientId: number;
+  projectId?: number | null; // ad-hoc práce může být přímo na klienta
+  date: string; // ISO datum (YYYY-MM-DD)
+  durationMinutes: number;
+  description?: string;
+  billed: boolean;
+  invoiceId?: number | null; // nastaví se při vyfakturování
+}
+
+export interface InvoiceItem {
+  description: string;
+  quantity: number;
+  unit: string; // "h" | "ks" | ...
+  unitPrice: number;
+}
+
+export interface Invoice {
+  id?: number;
+  invoiceNumber: string;
+  clientId: number;
+  projectId?: number | null;
+  issueDate: string; // ISO datum
+  taxableSupplyDate?: string; // DUZP
+  dueDate: string;
+  variabilniSymbol: string;
+  items: InvoiceItem[];
+  status: InvoiceStatus;
+  createdFromTimeEntries: boolean;
+}
+
+/**
+ * Firemní profil dodavatele — jediný záznam (id: "default"),
+ * ze kterého čerpají všechny faktury (Fáze 6).
+ */
+export interface BusinessProfile {
+  id: string; // vždy "default"
+  name?: string;
+  address?: string;
+  ico?: string;
+  dic?: string;
+  bankAccount?: string;
+  iban?: string;
+  paymentTerms?: string;
+  footerNote?: string;
+  accentColor?: string; // hex
+  templateId?: "classic-left" | "classic-right" | "minimal";
+  isVatPayer?: boolean;
+  logo?: Blob;
+  signature?: Blob;
+}
+
+export class HodinovkaDB extends Dexie {
+  clients!: EntityTable<Client, "id">;
+  projects!: EntityTable<Project, "id">;
+  timeEntries!: EntityTable<TimeEntry, "id">;
+  invoices!: EntityTable<Invoice, "id">;
+  businessProfile!: EntityTable<BusinessProfile, "id">;
+
+  constructor() {
+    super("hodinovka");
+
+    // Indexy: jen pole, podle kterých se vyhledává/filtruje. Ostatní pole
+    // žijí v objektu bez indexu.
+    this.version(1).stores({
+      clients: "++id, name, ico",
+      projects: "++id, clientId, name, startDate",
+      timeEntries: "++id, clientId, projectId, date, billed, invoiceId",
+      invoices: "++id, clientId, projectId, invoiceNumber, issueDate, status",
+      businessProfile: "id", // jediný záznam, id: "default"
+    });
+  }
+}
+
+// Jediná sdílená instance DB. Vytvoří se až v prohlížeči (IndexedDB neexistuje
+// při statickém buildu / SSR).
+let _db: HodinovkaDB | null = null;
+
+export function getDb(): HodinovkaDB {
+  if (typeof window === "undefined") {
+    throw new Error("getDb() lze volat jen na klientovi (IndexedDB není na serveru).");
+  }
+  if (!_db) {
+    _db = new HodinovkaDB();
+  }
+  return _db;
+}
