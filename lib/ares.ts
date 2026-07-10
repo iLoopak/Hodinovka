@@ -12,7 +12,11 @@ const ARES_BASE =
 export interface AresResult {
   ico: string;
   name: string;
-  address: string;
+  // Adresa rozdělená na jednotlivá pole.
+  street: string; // ulice
+  streetNumber: string; // číslo popisné/orientační, např. "778/3a"
+  city: string; // obec
+  zip: string; // PSČ, formátované "140 00"
   dic?: string;
   legalForm?: string;
 }
@@ -26,19 +30,54 @@ export class AresError extends Error {
   }
 }
 
+interface AresSidlo {
+  nazevUlice?: string;
+  nazevObce?: string;
+  nazevCastiObce?: string;
+  cisloDomovni?: number;
+  cisloOrientacni?: number;
+  cisloOrientacniPismeno?: string;
+  psc?: number;
+  textovaAdresa?: string;
+}
+
 interface AresRaw {
   ico?: string;
   obchodniJmeno?: string;
   dic?: string;
   pravniForma?: string;
-  sidlo?: { textovaAdresa?: string };
+  sidlo?: AresSidlo;
+}
+
+/** PSČ z ARES je číslo (14000) → naformátujeme na "140 00". */
+export function formatPsc(psc: number | string | undefined): string {
+  if (psc == null) return "";
+  const digits = String(psc).replace(/\D/g, "");
+  if (digits.length !== 5) return digits;
+  return `${digits.slice(0, 3)} ${digits.slice(3)}`;
+}
+
+/** Sestaví "778/3a" z čísla domovního, orientačního a písmene. */
+function buildStreetNumber(s: AresSidlo): string {
+  if (s.cisloDomovni == null) return "";
+  const orient =
+    s.cisloOrientacni != null
+      ? `/${s.cisloOrientacni}${s.cisloOrientacniPismeno ?? ""}`
+      : "";
+  return `${s.cisloDomovni}${orient}`;
 }
 
 function normalize(data: AresRaw, ico: string): AresResult {
+  const s = data.sidlo ?? {};
   return {
     ico: data.ico ?? ico,
     name: data.obchodniJmeno ?? "",
-    address: data.sidlo?.textovaAdresa ?? "",
+    // U malých obcí ARES nemá ulici — pak necháme street prázdné a číslo
+    // popisné je jediná adresní část.
+    street: s.nazevUlice ?? "",
+    streetNumber: buildStreetNumber(s),
+    city: s.nazevObce ?? "",
+    zip: formatPsc(s.psc),
     dic: data.dic ?? undefined,
     legalForm: data.pravniForma ?? undefined,
   };
