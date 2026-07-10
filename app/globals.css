@@ -4,28 +4,45 @@
    ============================================================ */
 
 :root {
-  /* --- Barvy (světlý režim) --- */
+  /* --- Barvy (světlý režim) — teplá, papírová paleta --- */
   --bg: #f5f4f0;
   --surface: #ffffff;
   --surface-subtle: #efeee9;
+  --surface-hover: #e9e8e2;
+
   --text: #18201b;
   --text-muted: #687069;
-  --border: #e2e2dc;
-  --border-strong: #d3d3cb;
+  --text-subtle: #8b918c;
 
+  --border: #e2e2dc;
+  --border-strong: #cdcec7;
+
+  /* Zelená = značka + úspěch/zaplaceno, ne „všechno". */
   --accent: #3f7457;
   --accent-hover: #356449;
+  --accent-active: #2d573f;
   --accent-soft: #e3efe8;
   --accent-contrast: #ffffff;
 
-  --warning: #b77a27;
-  --warning-soft: #f7ead5;
-
-  --danger: #b95149;
-  --danger-soft: #f7e2df;
-
   --success: #367452;
   --success-soft: #e2efe7;
+  --success-text: #285b40;
+
+  /* Jantarová = upozornění, blížící se splatnost, vyžaduje pozornost. */
+  --warning: #b77a27;
+  --warning-soft: #f7ead5;
+  --warning-text: #7b501b;
+
+  /* Červená = jen destruktivní akce, chyby, po splatnosti, vážná varování. */
+  --danger: #b95149;
+  --danger-hover: #a6463f;
+  --danger-soft: #f7e2df;
+  --danger-text: #8b3933;
+
+  /* Modrá = jen neutrální informační stavy. */
+  --info: #456f86;
+  --info-soft: #e1edf2;
+  --info-text: #31596c;
 
   /* --- Rozestupy --- */
   --space-1: 4px;
@@ -69,28 +86,41 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Teple laděná tmavá paleta — ne prostá inverze. */
-    --bg: #141613;
-    --surface: #1d201b;
-    --surface-subtle: #23271f;
-    --text: #e9ece6;
-    --text-muted: #9aa298;
-    --border: #2e332b;
-    --border-strong: #3b4137;
+    /* Záměrná tmavá paleta — teple laděná, ne prostá inverze, ne čistá čerň. */
+    --bg: #151815;
+    --surface: #1d211e;
+    --surface-subtle: #252a26;
+    --surface-hover: #2c322d;
 
-    --accent: #6bb187;
-    --accent-hover: #7cc097;
-    --accent-soft: rgba(107, 177, 135, 0.15);
-    --accent-contrast: #0f1912;
+    --text: #edf1ed;
+    --text-muted: #a4ada6;
+    --text-subtle: #818a83;
 
-    --warning: #d59a4d;
-    --warning-soft: rgba(213, 154, 77, 0.16);
+    --border: #303631;
+    --border-strong: #414941;
 
-    --danger: #d7726a;
-    --danger-soft: rgba(215, 114, 106, 0.16);
+    --accent: #72a886;
+    --accent-hover: #82b896;
+    --accent-active: #5f9673;
+    --accent-soft: #243c2d;
+    --accent-contrast: #102017;
 
-    --success: #6bb187;
-    --success-soft: rgba(107, 177, 135, 0.15);
+    --success: #72ad87;
+    --success-soft: #233b2c;
+    --success-text: #a8d8b7;
+
+    --warning: #d3a45a;
+    --warning-soft: #44351f;
+    --warning-text: #f0cc91;
+
+    --danger: #df7d75;
+    --danger-hover: #eb8e87;
+    --danger-soft: #482825;
+    --danger-text: #f0aaa5;
+
+    --info: #79a9bf;
+    --info-soft: #243b46;
+    --info-text: #add0df;
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
@@ -374,6 +404,9 @@ h3 {
 .btn-primary:hover {
   background: var(--accent-hover);
 }
+.btn-primary:active {
+  background: var(--accent-active);
+}
 
 .btn-secondary {
   background: var(--surface);
@@ -381,7 +414,7 @@ h3 {
   border-color: var(--border-strong);
 }
 .btn-secondary:hover {
-  background: var(--surface-subtle);
+  background: var(--surface-hover);
 }
 
 .btn-ghost {
@@ -389,16 +422,19 @@ h3 {
   color: var(--text);
 }
 .btn-ghost:hover {
-  background: var(--surface-subtle);
+  background: var(--surface-hover);
 }
 
 .btn-danger {
   background: transparent;
-  color: var(--danger);
+  color: var(--danger-text);
   border-color: color-mix(in srgb, var(--danger) 35%, transparent);
 }
 .btn-danger:hover {
   background: var(--danger-soft);
+}
+.btn-danger:active {
+  background: color-mix(in srgb, var(--danger-soft) 70%, var(--danger));
 }
 
 .btn:disabled,
@@ -430,7 +466,7 @@ h3 {
   cursor: pointer;
 }
 .icon-btn:hover {
-  background: var(--surface-subtle);
+  background: var(--surface-hover);
 }
 .icon-btn svg {
   width: 20px;
@@ -493,7 +529,7 @@ h3 {
 }
 
 a.list-row:hover {
-  background: var(--surface-subtle);
+  background: var(--surface-hover);
 }
 
 .list-row .lr-body {
@@ -579,25 +615,31 @@ a.list-row:hover {
   height: 12px;
 }
 
+/* Odznaky: měkké pozadí + tmavší (světlý režim) / světlejší (tmavý) text
+   kvůli kontrastu; barva nikdy nenese význam sama o sobě (vždy i text). */
 .badge-neutral {
   background: var(--surface-subtle);
   color: var(--text-muted);
 }
 .badge-accent {
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--success-text);
 }
 .badge-success {
   background: var(--success-soft);
-  color: var(--success);
+  color: var(--success-text);
 }
 .badge-warning {
   background: var(--warning-soft);
-  color: var(--warning);
+  color: var(--warning-text);
 }
 .badge-danger {
   background: var(--danger-soft);
-  color: var(--danger);
+  color: var(--danger-text);
+}
+.badge-info {
+  background: var(--info-soft);
+  color: var(--info-text);
 }
 
 /* ============================================================
@@ -698,7 +740,7 @@ a.list-row:hover {
   min-height: 44px;
 }
 .quick-action:hover {
-  background: var(--surface-subtle);
+  background: var(--surface-hover);
 }
 .quick-action .qa-icon {
   display: inline-flex;
@@ -840,6 +882,12 @@ a.list-row:hover {
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
+.field input::placeholder,
+.field textarea::placeholder,
+.search-field input::placeholder {
+  color: var(--text-subtle);
+}
+
 /* Pole doplněné z ARES — jemné potvrzení. */
 .field input[data-filled="true"] {
   border-color: color-mix(in srgb, var(--success) 55%, var(--border-strong));
@@ -852,7 +900,7 @@ a.list-row:hover {
   font-size: var(--text-sm);
 }
 .field-error {
-  color: var(--danger);
+  color: var(--danger-text);
   font-size: var(--text-sm);
   font-weight: 550;
 }
