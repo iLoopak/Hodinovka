@@ -12,6 +12,7 @@ import { UnbilledHero } from "@/components/dashboard/UnbilledHero";
 import { QuickAction } from "@/components/QuickAction";
 import { MetricCard } from "@/components/MetricCard";
 import { EmptyState } from "@/components/EmptyState";
+import { TimeEntryList } from "@/components/TimeEntryList";
 import { IconWork, IconInvoices, IconInbox, IconAlert } from "@/components/icons";
 
 const s = strings.prehled;
@@ -45,6 +46,11 @@ export default function PrehledPage() {
   const activeProjects =
     projects?.filter((p) => projectStatus(p) === "active").length ?? 0;
 
+  const hasWork = (timeEntries?.length ?? 0) > 0;
+  const recentEntries = timeEntries
+    ? [...timeEntries].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 5)
+    : [];
+
   const monthLabel = now
     ? `${MONTHS[now.getMonth()]} ${now.getFullYear()}`
     : "";
@@ -73,7 +79,7 @@ export default function PrehledPage() {
 
         <div className="quick-actions">
           <QuickAction
-            href="/vykazy"
+            href="/vykazy/novy"
             icon={<IconWork />}
             label={s.logWork}
             description={s.logWorkDesc}
@@ -87,12 +93,25 @@ export default function PrehledPage() {
         </div>
 
         <section>
-          <SectionHeader title={s.recentWork} />
-          <EmptyState
-            icon={<IconInbox />}
-            title={s.recentWorkEmpty}
-            description={strings.vykazy.upcomingHint}
+          <SectionHeader
+            title={s.recentWork}
+            action={hasWork ? { href: "/vykazy", label: s.viewAll } : undefined}
           />
+          {hasWork ? (
+            <TimeEntryList
+              entries={recentEntries}
+              clients={clients ?? []}
+              projects={projects ?? []}
+            />
+          ) : (
+            <EmptyState
+              icon={<IconInbox />}
+              title={s.recentWorkEmpty}
+              description={strings.vykazy.emptyHint}
+              actionLabel={s.logWork}
+              actionHref="/vykazy/novy"
+            />
+          )}
         </section>
 
         <section>

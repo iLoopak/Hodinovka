@@ -1019,6 +1019,103 @@ a.list-row:hover {
   outline-offset: 1px;
 }
 
+/* Doba práce — hodiny + minuty */
+.duration-inputs {
+  display: flex;
+  gap: var(--space-3);
+}
+.duration-part {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+}
+.duration-part input {
+  width: 100%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.duration-part span {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   Výkazy práce — časová osa
+   ============================================================ */
+
+.day-group {
+  margin-bottom: var(--space-5);
+}
+.day-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0 var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.day-head span:first-child {
+  text-transform: capitalize;
+}
+
+/* Zvýrazněná doba v řádku záznamu */
+.dur {
+  flex-shrink: 0;
+  min-width: 58px;
+  font-weight: 680;
+  font-size: var(--text-md);
+  color: var(--text);
+}
+
+/* Souhrn (odpracováno / nevyfakturováno) */
+.summary-row {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+.summary-row .stat {
+  flex: 1;
+}
+
+/* Řádek filtrů */
+.filters {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+.filters .field {
+  flex: 1;
+  min-width: 140px;
+  gap: 4px;
+}
+.filters .field > label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Měsíční přepínač */
+.month-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.month-switch .ms-label {
+  font-weight: 620;
+  text-transform: capitalize;
+}
+
 /* ============================================================
    Vyhledávání
    ============================================================ */
