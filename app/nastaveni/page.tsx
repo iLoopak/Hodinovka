@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getDb, type BusinessProfile } from "@/lib/db";
+import { fetchAresByIco, AresError } from "@/lib/ares";
 import { strings } from "@/lib/strings";
 import {
   PROFILE_ID,
@@ -13,7 +14,7 @@ import {
   downscaleImage,
 } from "@/lib/profile";
 import { PageHeader } from "@/components/PageHeader";
-import { IconImage, IconCheck } from "@/components/icons";
+import { IconImage, IconCheck, IconSearch } from "@/components/icons";
 
 const s = strings.nastaveni;
 
@@ -55,6 +56,8 @@ export default function NastaveniPage() {
 
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(0);
+  const [aresLoading, setAresLoading] = useState(false);
+  const [aresError, setAresError] = useState<string | null>(null);
   const didInit = useRef(false);
 
   // Naplníme formulář jednou, až se profil načte (i když neexistuje → defaulty).
@@ -80,6 +83,27 @@ export default function NastaveniPage() {
 
   const logoUrl = useObjectUrl(logo);
   const signatureUrl = useObjectUrl(signature);
+
+  async function handleAres() {
+    setAresError(null);
+    setAresLoading(true);
+    try {
+      const r = await fetchAresByIco(ico);
+      if (r.name) setName(r.name);
+      if (r.dic) setDic(r.dic);
+      if (r.ico) setIco(r.ico);
+      // Adresu poskládáme do víceřádkového pole: ulice s číslem, PSČ a obec.
+      const addrLines = [
+        [r.street, r.streetNumber].filter(Boolean).join(" "),
+        [r.zip, r.city].filter(Boolean).join(" "),
+      ].filter(Boolean);
+      if (addrLines.length) setAddress(addrLines.join("\n"));
+    } catch (err) {
+      setAresError(err instanceof AresError ? err.message : "Načtení z ARES selhalo.");
+    } finally {
+      setAresLoading(false);
+    }
+  }
 
   async function onPickImage(
     e: React.ChangeEvent<HTMLInputElement>,
@@ -157,15 +181,32 @@ export default function NastaveniPage() {
               <p className="field-hint">{s.fields.addressHint}</p>
             </div>
 
-            <div className="field-grid">
-              <div className="field">
-                <label htmlFor="ico">{s.fields.ico}</label>
-                <input id="ico" inputMode="numeric" value={ico} onChange={(e) => setIco(e.target.value)} />
+            <div className="field">
+              <label htmlFor="ico">{s.fields.ico}</label>
+              <div className="ico-lookup">
+                <input
+                  id="ico"
+                  inputMode="numeric"
+                  value={ico}
+                  onChange={(e) => setIco(e.target.value)}
+                  placeholder="12345678"
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleAres}
+                  disabled={aresLoading}
+                >
+                  <IconSearch />
+                  {aresLoading ? strings.klienti.fields.loading : strings.klienti.fields.loadFromAres}
+                </button>
               </div>
-              <div className="field">
-                <label htmlFor="dic">{s.fields.dic}</label>
-                <input id="dic" value={dic} onChange={(e) => setDic(e.target.value)} />
-              </div>
+              {aresError && <p className="field-error">{aresError}</p>}
+            </div>
+
+            <div className="field">
+              <label htmlFor="dic">{s.fields.dic}</label>
+              <input id="dic" value={dic} onChange={(e) => setDic(e.target.value)} />
             </div>
 
             <label className="checkbox-field">

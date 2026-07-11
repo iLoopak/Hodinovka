@@ -20,6 +20,45 @@ export async function saveProfile(profile: Omit<BusinessProfile, "id">): Promise
   await getDb().businessProfile.put({ ...profile, id: PROFILE_ID });
 }
 
+/** CSS proměnné akcentu, které aplikace používá napříč UI. */
+export const ACCENT_VARS = [
+  "--accent",
+  "--accent-hover",
+  "--accent-active",
+  "--accent-soft",
+  "--accent-contrast",
+] as const;
+
+/**
+ * Zvolí kontrastní barvu textu (bílá / tmavá) podle jasu akcentu — aby byl
+ * text na tlačítku čitelný i pro světlé akcenty.
+ */
+export function accentContrast(hex: string): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return "#ffffff";
+  const n = parseInt(m[1], 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.6 ? "#10231a" : "#ffffff";
+}
+
+/**
+ * Odvodí odstíny akcentu z jediné barvy. Hover/active míchá směrem k textu
+ * a soft k povrchu — díky tomu odstíny fungují ve světlém i tmavém režimu
+ * (proměnné `--text` / `--surface` se samy přizpůsobí).
+ */
+export function accentTokens(hex: string): Record<string, string> {
+  return {
+    "--accent": hex,
+    "--accent-hover": `color-mix(in srgb, ${hex} 82%, var(--text))`,
+    "--accent-active": `color-mix(in srgb, ${hex} 68%, var(--text))`,
+    "--accent-soft": `color-mix(in srgb, ${hex} 15%, var(--surface))`,
+    "--accent-contrast": accentContrast(hex),
+  };
+}
+
 /**
  * Zmenší nahraný obrázek na rozumnou šířku (kvůli velikosti v IndexedDB
  * i v budoucím PDF) a vrátí ho jako PNG Blob — PNG zachová průhlednost loga.

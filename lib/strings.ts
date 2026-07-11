@@ -306,7 +306,7 @@ export const strings = {
     removeImage: "Odebrat",
 
     accent: "Barva zvýraznění",
-    accentHint: "Použije se v hlavičce a tabulce faktury.",
+    accentHint: "Použije se v celé aplikaci i v hlavičce a tabulce faktury (uloží se po stisknutí Uložit profil).",
 
     template: "Šablona",
     templates: {

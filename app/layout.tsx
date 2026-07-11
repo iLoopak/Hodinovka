@@ -4,6 +4,7 @@ import { strings } from "@/lib/strings";
 import { AppNav } from "@/components/AppNav";
 import { GlobalTimerBar } from "@/components/GlobalTimerBar";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { AccentProvider } from "@/components/AccentProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -40,6 +41,7 @@ export default function RootLayout({
     <html lang="cs" className={GeistSans.variable}>
       <body>
         <ServiceWorkerRegister />
+        <AccentProvider />
         <div className="app-shell">
           <AppNav />
           <GlobalTimerBar />
