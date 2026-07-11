@@ -1,23 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { getDb, type TimeEntry } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { strings } from "@/lib/strings";
-import { isoDateFromTs } from "@/lib/time";
-import { formatElapsed, msToRoundedMinutes } from "@/lib/format";
-import { IconPlay, IconStop, IconWork } from "@/components/icons";
+import { startTimer } from "@/lib/timer";
+import { IconPlay, IconWork } from "@/components/icons";
 
 const t = strings.vykazy.timer;
 
 /**
- * Stopky „začít / zastavit práci". Běžící měření žije v IndexedDB, takže
- * přežije přechod mezi stránkami i zavření aplikace. Po zastavení vznikne
- * běžný záznam práce.
- *
- * `idleHidden` = když neběží, nic nevykreslí (pro dashboard).
+ * Spuštění stopek (na stránce Práce). Když už měření běží, nic nevykreslí —
+ * běžící stav řídí globální lišta (GlobalTimerBar) viditelná na všech stránkách.
  */
-export function TimerWidget({ idleHidden = false }: { idleHidden?: boolean }) {
+export function TimerWidget() {
   const timer = useLiveQuery(() => getDb().activeTimer.get("current").then((x) => x ?? null), []);
   const clients = useLiveQuery(() => getDb().clients.orderBy("name").toArray(), []);
   const projects = useLiveQuery(() => getDb().projects.orderBy("name").toArray(), []);
@@ -25,91 +21,21 @@ export function TimerWidget({ idleHidden = false }: { idleHidden?: boolean }) {
   const [clientId, setClientId] = useState("");
   const [projectId, setProjectId] = useState("");
   const [description, setDescription] = useState("");
-  const [now, setNow] = useState(0);
   const [busy, setBusy] = useState(false);
 
-  // Tik každou sekundu, jen když měření běží.
-  useEffect(() => {
-    if (!timer) return;
-    setNow(Date.now());
-    const iv = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(iv);
-  }, [timer?.startedAt, timer]);
-
   if (timer === undefined) return null; // načítá se
-  if (!timer && idleHidden) return null; // na dashboardu neběžící stopky skryjeme
+  if (timer) return null; // běží → řídí globální lišta
 
   const clientProjects = projects?.filter((p) => p.clientId === Number(clientId)) ?? [];
+  const noClients = clients && clients.length === 0;
 
   async function start() {
     if (!clientId) return;
     setBusy(true);
-    await getDb().activeTimer.put({
-      id: "current",
-      startedAt: Date.now(),
-      clientId: Number(clientId),
-      projectId: projectId ? Number(projectId) : null,
-      description: description.trim() || undefined,
-    });
+    await startTimer(Number(clientId), projectId ? Number(projectId) : null, description);
     setBusy(false);
   }
 
-  async function stop() {
-    if (!timer) return;
-    setBusy(true);
-    const durationMinutes = msToRoundedMinutes(Date.now() - timer.startedAt);
-    const entry: TimeEntry = {
-      clientId: timer.clientId,
-      projectId: timer.projectId ?? null,
-      date: isoDateFromTs(timer.startedAt),
-      durationMinutes,
-      description: timer.description,
-      billed: false,
-      invoiceId: null,
-    };
-    await getDb().timeEntries.add(entry);
-    await getDb().activeTimer.delete("current");
-    setClientId("");
-    setProjectId("");
-    setDescription("");
-    setBusy(false);
-  }
-
-  async function discard() {
-    if (!window.confirm(t.discardConfirm)) return;
-    await getDb().activeTimer.delete("current");
-  }
-
-  // --- Běžící stav ---
-  if (timer) {
-    const client = clients?.find((c) => c.id === timer.clientId);
-    const project =
-      timer.projectId != null ? projects?.find((p) => p.id === timer.projectId) : undefined;
-    const context = [client?.name, project?.name, timer.description].filter(Boolean).join(" · ");
-
-    return (
-      <div className="timer-card running">
-        <div className="timer-live">
-          <span className="timer-pulse" aria-hidden="true" />
-          <div>
-            <div className="timer-elapsed tnum">{formatElapsed(now - timer.startedAt)}</div>
-            <div className="timer-context">{context || t.running}</div>
-          </div>
-        </div>
-        <div className="timer-actions">
-          <button type="button" className="btn btn-primary" onClick={stop} disabled={busy}>
-            <IconStop /> {t.stop}
-          </button>
-          <button type="button" className="btn btn-ghost" onClick={discard} disabled={busy}>
-            {t.discard}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // --- Nečinný stav (spuštění) ---
-  const noClients = clients && clients.length === 0;
   return (
     <div className="timer-card">
       <div className="timer-idle-head">

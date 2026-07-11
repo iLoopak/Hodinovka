@@ -177,6 +177,7 @@ export const strings = {
       start: "Spustit",
       running: "Měřím čas",
       stop: "Zastavit a uložit",
+      stopShort: "Zastavit",
       discard: "Zahodit",
       discardConfirm: "Zahodit měření bez uložení?",
     },

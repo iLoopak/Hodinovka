@@ -1053,16 +1053,6 @@ a.list-row:hover {
   margin-bottom: var(--space-5);
 }
 
-.timer-card.running {
-  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
-  background: color-mix(in srgb, var(--accent-soft) 45%, var(--surface));
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-}
-
 .timer-idle-head {
   display: flex;
   align-items: center;
@@ -1116,12 +1106,6 @@ a.list-row:hover {
   }
 }
 
-.timer-live {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-width: 0;
-}
 .timer-pulse {
   width: 10px;
   height: 10px;
@@ -1134,22 +1118,76 @@ a.list-row:hover {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
-.timer-elapsed {
-  font-size: var(--text-2xl);
-  font-weight: 700;
-  letter-spacing: 0.01em;
+
+/* --- Globální lišta běžících stopek (na všech stránkách) --- */
+.global-timer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  padding-top: calc(var(--space-2) + env(safe-area-inset-top));
+  background: color-mix(in srgb, var(--accent-soft) 88%, var(--surface));
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  box-shadow: var(--shadow-sm);
 }
-.timer-context {
+.gt-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+  color: var(--text);
+}
+.gt-time {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.gt-context {
   color: var(--text-muted);
   font-size: var(--text-sm);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.timer-actions {
+.gt-actions {
   display: flex;
   gap: var(--space-2);
   flex-shrink: 0;
+}
+.gt-actions .btn {
+  min-height: 40px;
+  padding: 0 var(--space-4);
+}
+.gt-discard {
+  width: 40px;
+  height: 40px;
+}
+.gt-discard svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (min-width: 860px) {
+  .global-timer {
+    left: var(--sidebar-width);
+  }
+}
+
+/* Když stopky běží, posuneme obsah pod lištu. */
+:root[data-timer="running"] .app-main {
+  padding-top: calc(var(--space-5) + 56px + env(safe-area-inset-top));
+}
+@media (min-width: 860px) {
+  :root[data-timer="running"] .app-main {
+    padding-top: calc(var(--space-7) + 52px);
+  }
 }
 
 /* ============================================================

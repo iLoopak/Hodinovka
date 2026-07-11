@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { strings } from "@/lib/strings";
 import { AppNav } from "@/components/AppNav";
+import { GlobalTimerBar } from "@/components/GlobalTimerBar";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import "./globals.css";
 
@@ -41,6 +42,7 @@ export default function RootLayout({
         <ServiceWorkerRegister />
         <div className="app-shell">
           <AppNav />
+          <GlobalTimerBar />
           <main className="app-main">{children}</main>
         </div>
       </body>
