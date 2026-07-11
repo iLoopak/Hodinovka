@@ -7,7 +7,7 @@ import { getDb } from "@/lib/db";
 import { strings } from "@/lib/strings";
 import { formatMoney, formatDate } from "@/lib/format";
 import { todayIso } from "@/lib/time";
-import { invoiceTotal } from "@/lib/invoice";
+import { invoicePayable } from "@/lib/vat";
 import { invoiceStatusView, invoiceBadge } from "@/lib/status";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
@@ -66,7 +66,7 @@ export default function FakturyPage() {
               subtitle={`${clientName(inv.clientId)} · splatnost ${formatDate(inv.dueDate)}`}
               meta={
                 <span className="invoice-meta">
-                  <span className="tnum invoice-amount">{formatMoney(invoiceTotal(inv.items), clients.find((c) => c.id === inv.clientId)?.currency)}</span>
+                  <span className="tnum invoice-amount">{formatMoney(invoicePayable(inv), clients.find((c) => c.id === inv.clientId)?.currency)}</span>
                   <StatusBadge spec={invoiceBadge(invoiceStatusView(inv, today))} />
                 </span>
               }

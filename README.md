@@ -44,14 +44,13 @@ docs/           # roadmap.md + faktura-pdf-layout.md
 
 Postup vývoje po fázích viz [`docs/roadmap.md`](docs/roadmap.md).
 
-**Stav:** Fáze 8 (Leštění a bezpečnost dat) hotová — v Nastavení přibylo
-**Data a zálohování**: export celé databáze do JSON (`Zálohovat data`) a
-obnova ze zálohy (`Obnovit ze zálohy`, s potvrzením; loga/podpis jako data
-URL, cache PDF se nezálohuje). Přehled nově ukazuje **nevyfakturováno podle
-klienta**. Doplněná validace (IČO na 8 číslic, konec projektu nesmí být před
-začátkem). Hotové i Fáze 1–7: Klienti + ARES, Projekty, Výkazy práce (vč.
-stopek), faktury z výkazů i ruční, firemní profil, **PDF export + sdílení**.
-Zbývá jen volitelná Fáze 9 (Capacitor APK).
+**Stav:** Přidána **podpora DPH pro plátce** — položky nesou sazbu DPH
+(21/12/0 %), faktura si drží příznak `withVat`. Plátci mají v editoru i na
+PDF rozpis (základ, DPH, celkem s DPH) a rekapitulaci DPH po sazbách;
+neplátci beze změny („Dodavatel není plátcem DPH"). Ceny se zadávají bez DPH.
+Hotové i Fáze 1–8: Klienti + ARES, Projekty, Výkazy práce (vč. stopek),
+faktury z výkazů i ruční, firemní profil, PDF export + sdílení, záloha/obnova
+dat. Zbývá jen volitelná Fáze 9 (Capacitor APK).
 
 > ARES posílá `Access-Control-Allow-Origin: *`, takže se volá přímo
 > z prohlížeče (`lib/ares.ts`) — žádný proxy/backend není potřeba a lookup

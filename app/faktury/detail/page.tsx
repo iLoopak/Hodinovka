@@ -8,7 +8,7 @@ import { getDb, type InvoiceStatus } from "@/lib/db";
 import { strings } from "@/lib/strings";
 import { formatMoney, formatDate } from "@/lib/format";
 import { todayIso } from "@/lib/time";
-import { invoiceTotal } from "@/lib/invoice";
+import { invoiceNet, invoiceVat, invoiceGross, vatRecap, itemVatRate } from "@/lib/vat";
 import { invoiceStatusView, invoiceBadge } from "@/lib/status";
 import { PROFILE_ID } from "@/lib/profile";
 import { buildInvoiceData, pdfSignature } from "@/lib/pdf/invoiceData";
@@ -67,7 +67,11 @@ function InvoiceDetail() {
   }
 
   const currency = client?.currency;
-  const total = invoiceTotal(invoice.items);
+  const withVat = invoice.withVat ?? false;
+  const netTotal = invoiceNet(invoice.items);
+  const vatTotal = invoiceVat(invoice.items, withVat);
+  const grossTotal = invoiceGross(invoice.items, withVat);
+  const recap = withVat ? vatRecap(invoice.items) : [];
 
   async function setStatus(status: InvoiceStatus) {
     await getDb().invoices.update(id, { status });
@@ -208,16 +212,38 @@ function InvoiceDetail() {
                 <div className="ivr-desc">{it.description}</div>
                 <div className="ivr-qty tnum muted">
                   {it.quantity} {it.unit} × {formatMoney(it.unitPrice, currency)}
+                  {withVat ? ` · ${s.itemVat} ${itemVatRate(it)} %` : ""}
                 </div>
                 <div className="ivr-total tnum">{formatMoney(it.quantity * it.unitPrice, currency)}</div>
               </div>
             ))}
           </div>
         )}
-        <div className="invoice-total">
-          <span>{s.total}</span>
-          <span className="tnum">{formatMoney(total, currency)}</span>
-        </div>
+        {withVat ? (
+          <div className="invoice-total-vat">
+            <div className="itv-row">
+              <span>{s.totalNet}</span>
+              <span className="tnum">{formatMoney(netTotal, currency)}</span>
+            </div>
+            {recap.map((r) => (
+              <div className="itv-row" key={r.rate}>
+                <span>
+                  {s.vatAmount} {r.rate} %
+                </span>
+                <span className="tnum">{formatMoney(r.vat, currency)}</span>
+              </div>
+            ))}
+            <div className="invoice-total">
+              <span>{s.totalGross}</span>
+              <span className="tnum">{formatMoney(grossTotal, currency)}</span>
+            </div>
+          </div>
+        ) : (
+          <div className="invoice-total">
+            <span>{s.total}</span>
+            <span className="tnum">{formatMoney(netTotal, currency)}</span>
+          </div>
+        )}
       </section>
 
       {/* Údaje */}

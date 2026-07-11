@@ -55,7 +55,8 @@ export interface InvoiceItem {
   description: string;
   quantity: number;
   unit: string; // "h" | "ks" | ...
-  unitPrice: number;
+  unitPrice: number; // cena za MJ bez DPH
+  vatRate?: number; // sazba DPH v % (21 / 12 / 0); jen u faktur s DPH
 }
 
 export interface Invoice {
@@ -70,6 +71,9 @@ export interface Invoice {
   items: InvoiceItem[];
   status: InvoiceStatus;
   createdFromTimeEntries: boolean;
+  // Snímek toho, zda byl dodavatel při vystavení plátcem DPH. Řídí, jestli se
+  // počítá a zobrazuje DPH (historické faktury si tak drží svůj režim).
+  withVat?: boolean;
   // Cache vygenerovaného PDF — aby se při dalším otevření neregenerovalo,
   // dokud se nezmění data (porovnává se `pdfSignature`). Neindexováno.
   pdfBlob?: Blob;
