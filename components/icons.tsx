@@ -129,6 +129,21 @@ export const IconArrowRight = (p: IconProps) => (
   </Icon>
 );
 
+export const IconSettings = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 2.5a1 1 0 0 1 1 1v.6a1 1 0 0 0 .6.9 1 1 0 0 0 1.1-.2l.4-.4a1 1 0 0 1 1.4 1.4l-.4.4a1 1 0 0 0-.2 1.1 1 1 0 0 0 .9.6h.6a1 1 0 0 1 0 2h-.6a1 1 0 0 0-.9.6 1 1 0 0 0 .2 1.1l.4.4a1 1 0 0 1-1.4 1.4l-.4-.4a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9v.6a1 1 0 0 1-2 0v-.6a1 1 0 0 0-.6-.9 1 1 0 0 0-1.1.2l-.4.4a1 1 0 0 1-1.4-1.4l.4-.4a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6h-.6a1 1 0 0 1 0-2h.6a1 1 0 0 0 .9-.6 1 1 0 0 0-.2-1.1l-.4-.4a1 1 0 0 1 1.4-1.4l.4.4a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.9v-.6a1 1 0 0 1 1-1Z" />
+  </Icon>
+);
+
+export const IconImage = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <circle cx="8.5" cy="9.5" r="1.5" />
+    <path d="m4 17 4.5-4.5a2 2 0 0 1 2.8 0L16 17m-2-3 1.5-1.5a2 2 0 0 1 2.8 0L20 14" />
+  </Icon>
+);
+
 export const IconPlay = (p: IconProps) => (
   <Icon {...p}>
     <path d="M7 4.5v15l12-7.5-12-7.5Z" fill="currentColor" stroke="none" />

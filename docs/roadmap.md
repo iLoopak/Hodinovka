@@ -110,13 +110,15 @@
 
 **Goal:** One-time business profile setup that all invoices pull from.
 
-- [ ] Settings screen: "Můj profil / Firma" — name, address, IČO, DIČ, bank account, IBAN, default payment terms text, footer note
-- [ ] Logo upload: file input → downscale via canvas (cap ~600px wide) → store as Blob in Dexie → preview in settings
-- [ ] Optional signature/stamp image upload, same pattern
-- [ ] Accent color picker (hex) — used for invoice header/table styling
-- [ ] 2–3 template layout choices (e.g. logo top-left classic, logo top-right classic, minimal no-color-block) — simplest to implement as different `@react-pdf/renderer` layout components sharing the same data
+- [x] Settings screen: "Můj profil / Firma" — name, address, IČO, DIČ, bank account, IBAN, default payment terms text, footer note (+ plátce DPH)
+- [x] Logo upload: file input → downscale via canvas (cap ~600px wide) → store as Blob in Dexie → preview in settings
+- [x] Optional signature/stamp image upload, same pattern
+- [x] Accent color picker (hex) — used for invoice header/table styling
+- [x] 2–3 template layout choices (logo top-left classic, logo top-right classic, minimal no-color-block) — stored as `templateId`; a live header preview shows accent/logo/template. The actual `@react-pdf/renderer` layout components land in Phase 7.
 
-**Data model:** single `businessProfile` object (id: 'default') — not a table, just one settings record
+**Data model:** single `businessProfile` object (id: 'default') — one settings record in a Dexie table keyed by id.
+
+> `/nastaveni` (5th nav item). Profile persists as `businessProfile` (id `"default"`); logo/signature stored as PNG Blobs after canvas downscale. Preview uses fixed paper colors so it reads the same in dark mode. Phase 7 will consume this profile when rendering the PDF.
 
 **Acceptance:** Uploading a logo once makes it appear on every subsequently generated invoice PDF; changing accent color updates future PDFs.
 
