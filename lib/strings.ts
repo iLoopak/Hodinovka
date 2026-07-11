@@ -313,6 +313,7 @@ export const strings = {
       total: "Celkem k úhradě",
       notVatPayer: "Dodavatel není plátcem DPH.",
       note: "Poznámka",
+      qrPayment: "QR Platba",
       // Rekapitulace DPH
       vatRecap: "Rekapitulace DPH",
       vatRate: "Sazba",
