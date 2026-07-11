@@ -4,7 +4,7 @@
  * (z lib/pdf/generate.tsx), aby se @react-pdf/renderer nedostal do hlavního
  * bundlu.
  */
-import { Document, Page, View, Text, Image, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, View, Text, Image, Svg, Path, StyleSheet } from "@react-pdf/renderer";
 import { formatMoney } from "@/lib/format";
 import { strings } from "@/lib/strings";
 import type { InvoiceData } from "./invoiceData";
@@ -321,13 +321,16 @@ function Totals({ data }: { data: InvoiceData }) {
 }
 
 function Footer({ data }: { data: InvoiceData }) {
-  if (!data.footerNote && !data.signatureUrl && !data.qrUrl) return null;
+  if (!data.footerNote && !data.signatureUrl && !data.qr) return null;
+  const qr = data.qr;
   return (
     <View style={styles.footer}>
       <View style={styles.footerLeft}>
-        {data.qrUrl ? (
+        {qr ? (
           <View style={styles.qrBlock}>
-            <Image src={data.qrUrl} style={styles.qr} />
+            <Svg style={styles.qr} viewBox={`-4 -4 ${qr.size + 8} ${qr.size + 8}`}>
+              <Path d={qr.path} fill={INK} />
+            </Svg>
             <Text style={styles.qrLabel}>{P.qrPayment}</Text>
           </View>
         ) : null}

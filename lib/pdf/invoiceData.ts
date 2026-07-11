@@ -14,6 +14,12 @@ import {
   type VatRecapLine,
 } from "@/lib/vat";
 
+/** Vektorový QR kód (SVG path + počet modulů). */
+export interface QrMatrix {
+  size: number;
+  path: string;
+}
+
 export interface PdfItem {
   description: string;
   quantity: number;
@@ -59,7 +65,7 @@ export interface InvoiceData {
 
   logoUrl?: string; // data URL
   signatureUrl?: string; // data URL
-  qrUrl?: string; // QR Platba (SPD) jako PNG data URL
+  qr?: QrMatrix; // QR Platba (SPD) jako vektor
   accentColor: string;
   templateId: TemplateId;
 }
@@ -76,7 +82,7 @@ export function buildInvoiceData(
   invoice: Invoice,
   client: Client | null | undefined,
   profile: BusinessProfile | null | undefined,
-  images: { logoUrl?: string; signatureUrl?: string; qrUrl?: string } = {}
+  images: { logoUrl?: string; signatureUrl?: string; qr?: QrMatrix } = {}
 ): InvoiceData {
   const items: PdfItem[] = invoice.items.map((it) => ({
     description: it.description,
@@ -127,7 +133,7 @@ export function buildInvoiceData(
 
     logoUrl: images.logoUrl,
     signatureUrl: images.signatureUrl,
-    qrUrl: images.qrUrl,
+    qr: images.qr,
     accentColor: profile?.accentColor ?? DEFAULT_ACCENT,
     templateId: profile?.templateId ?? "classic-left",
   };

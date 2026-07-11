@@ -3,7 +3,7 @@
  * dynamicky, aby velká knihovna nebyla v hlavním bundlu — stáhne se až při
  * prvním exportu (a service worker ji pak cachuje pro offline).
  */
-import type { InvoiceData } from "./invoiceData";
+import type { InvoiceData, QrMatrix } from "./invoiceData";
 
 let fontsRegistered = false;
 
@@ -31,11 +31,25 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Blob> {
   return pdf(<InvoiceDocument data={data} />).toBlob();
 }
 
-/** Text (SPD řetězec) → PNG data URL s QR kódem. Knihovna se načte dynamicky. */
-export async function generateQrDataUrl(text: string): Promise<string> {
+/**
+ * Text (SPD řetězec) → vektorový QR kód (SVG path). Používá čisté `create()`
+ * z knihovny `qrcode` (bez canvasu/DOM), takže funguje v prohlížeči i v Node
+ * a vykreslí se ostře jako vektor přímo v PDF. Knihovna se načítá dynamicky.
+ */
+export async function generateQrMatrix(text: string): Promise<QrMatrix> {
   const mod = await import("qrcode");
   const QRCode = (mod as unknown as { default?: typeof mod }).default ?? mod;
-  return QRCode.toDataURL(text, { margin: 1, width: 256, errorCorrectionLevel: "M" });
+  const qr = QRCode.create(text, { errorCorrectionLevel: "M" });
+  const size = qr.modules.size;
+  const data = qr.modules.data;
+
+  let path = "";
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (data[r * size + c]) path += `M${c} ${r}h1v1h-1z`;
+    }
+  }
+  return { size, path };
 }
 
 /** Blob (logo/podpis z IndexedDB) → data URL pro <Image src>. */

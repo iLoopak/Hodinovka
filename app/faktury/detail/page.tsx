@@ -13,7 +13,7 @@ import { invoiceStatusView, invoiceBadge } from "@/lib/status";
 import { PROFILE_ID } from "@/lib/profile";
 import { resolveIban, buildSpd, spdMessage } from "@/lib/payment";
 import { buildInvoiceData, pdfSignature } from "@/lib/pdf/invoiceData";
-import { generateInvoicePdf, generateQrDataUrl, blobToDataUrl } from "@/lib/pdf/generate";
+import { generateInvoicePdf, generateQrMatrix, blobToDataUrl } from "@/lib/pdf/generate";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { IconArrowLeft, IconInvoices, IconTrash, IconCheck, IconDownload, IconShare } from "@/components/icons";
@@ -106,7 +106,7 @@ function InvoiceDetail() {
 
     // QR Platba — jen když známe IBAN (vyplněný nebo odvozený z čísla účtu)
     // a je co platit.
-    let qrUrl: string | undefined;
+    let qr: Awaited<ReturnType<typeof generateQrMatrix>> | undefined;
     const payable = invoicePayable(inv);
     const iban = resolveIban(pr);
     if (iban && payable > 0) {
@@ -117,10 +117,10 @@ function InvoiceDetail() {
         vs: inv.variabilniSymbol,
         message: spdMessage(inv.invoiceNumber),
       });
-      qrUrl = await generateQrDataUrl(spd);
+      qr = await generateQrMatrix(spd);
     }
 
-    const data = buildInvoiceData(inv, cl, pr, { logoUrl, signatureUrl, qrUrl });
+    const data = buildInvoiceData(inv, cl, pr, { logoUrl, signatureUrl, qr });
     const blob = await generateInvoicePdf(data);
     await db.invoices.update(id, { pdfBlob: blob, pdfSignature: signature });
     return blob;
