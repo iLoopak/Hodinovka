@@ -171,6 +171,11 @@ export function ClientForm({
           </button>
         </div>
         {aresError && <p className="field-error">{aresError}</p>}
+        {!aresError &&
+          form.ico.trim() !== "" &&
+          form.ico.replace(/\D/g, "").length !== 8 && (
+            <p className="field-hint">{s.icoInvalid}</p>
+          )}
       </div>
 
       <div className="field">

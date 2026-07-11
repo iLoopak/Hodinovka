@@ -156,6 +156,12 @@ export const IconShare = (p: IconProps) => (
   </Icon>
 );
 
+export const IconUpload = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 16V4m0 0-4 4m4-4 4 4M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2" />
+  </Icon>
+);
+
 export const IconPlay = (p: IconProps) => (
   <Icon {...p}>
     <path d="M7 4.5v15l12-7.5-12-7.5Z" fill="currentColor" stroke="none" />

@@ -44,16 +44,14 @@ docs/           # roadmap.md + faktura-pdf-layout.md
 
 Postup vývoje po fázích viz [`docs/roadmap.md`](docs/roadmap.md).
 
-**Stav:** Fáze 7 (Export PDF + sdílení) hotová — z detailu faktury lze
-vygenerovat **PDF daňového dokladu** (`@react-pdf/renderer`, 3 šablony
-z profilu, akcentová barva, logo/podpis, plná česká diakritika přes lokální
-font Geist) a buď ho **stáhnout**, nebo **Sdílet / Odeslat e-mailem** přes
-systémový share sheet (`navigator.share` s přílohou); na desktopu fallback =
-stažení PDF + předvyplněný `mailto:`. Vygenerované PDF se cachuje na faktuře
-a regeneruje se jen při změně dat. Hotové i Fáze 1–6: Klienti + ARES,
-Projekty, Výkazy práce (vč. stopek), faktury z výkazů i ruční, firemní profil
-v Nastavení, vizuální systém. Zbývá Fáze 8 (leštění a záloha/obnova dat)
-a volitelně Fáze 9 (Capacitor APK).
+**Stav:** Fáze 8 (Leštění a bezpečnost dat) hotová — v Nastavení přibylo
+**Data a zálohování**: export celé databáze do JSON (`Zálohovat data`) a
+obnova ze zálohy (`Obnovit ze zálohy`, s potvrzením; loga/podpis jako data
+URL, cache PDF se nezálohuje). Přehled nově ukazuje **nevyfakturováno podle
+klienta**. Doplněná validace (IČO na 8 číslic, konec projektu nesmí být před
+začátkem). Hotové i Fáze 1–7: Klienti + ARES, Projekty, Výkazy práce (vč.
+stopek), faktury z výkazů i ruční, firemní profil, **PDF export + sdílení**.
+Zbývá jen volitelná Fáze 9 (Capacitor APK).
 
 > ARES posílá `Access-Control-Allow-Origin: *`, takže se volá přímo
 > z prohlížeče (`lib/ares.ts`) — žádný proxy/backend není potřeba a lookup

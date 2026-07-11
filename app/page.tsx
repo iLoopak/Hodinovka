@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getDb } from "@/lib/db";
 import { strings } from "@/lib/strings";
-import { computeUnbilled } from "@/lib/metrics";
+import { computeUnbilled, unbilledByClient } from "@/lib/metrics";
 import { projectStatus } from "@/lib/project";
 import { isoDateFromTs } from "@/lib/time";
 import { invoiceTotal } from "@/lib/invoice";
 import { invoiceStatusView, invoiceBadge } from "@/lib/status";
-import { formatMoney, formatDate } from "@/lib/format";
+import { formatMoney, formatDate, formatHours } from "@/lib/format";
 import { PageHeader } from "@/components/PageHeader";
 import { SectionHeader } from "@/components/SectionHeader";
 import { UnbilledHero } from "@/components/dashboard/UnbilledHero";
@@ -18,6 +18,7 @@ import { MetricCard } from "@/components/MetricCard";
 import { EmptyState } from "@/components/EmptyState";
 import { TimeEntryList } from "@/components/TimeEntryList";
 import { ListRow } from "@/components/ListRow";
+import { Monogram } from "@/components/Monogram";
 import { StatusBadge } from "@/components/StatusBadge";
 import { IconWork, IconInvoices, IconInbox, IconAlert } from "@/components/icons";
 
@@ -49,6 +50,11 @@ export default function PrehledPage() {
     timeEntries && projects && clients
       ? computeUnbilled(timeEntries, projects, clients)
       : { minutes: 0, value: 0, entryCount: 0 };
+
+  const perClient =
+    timeEntries && projects && clients
+      ? unbilledByClient(timeEntries, projects, clients)
+      : [];
 
   const activeProjects =
     projects?.filter((p) => projectStatus(p) === "active").length ?? 0;
@@ -110,6 +116,25 @@ export default function PrehledPage() {
             description={s.newInvoiceDesc}
           />
         </div>
+
+        {perClient.length > 0 && (
+          <section>
+            <SectionHeader title={s.unbilledByClient} />
+            <div className="list">
+              {perClient.map(({ client, minutes, value }) => (
+                <ListRow
+                  key={client.id}
+                  href={`/klienti/detail/?id=${client.id}`}
+                  leading={<Monogram name={client.name} />}
+                  title={client.name}
+                  subtitle={<span className="tnum">{formatHours(minutes)} h</span>}
+                  meta={<span className="tnum invoice-amount">{formatMoney(value, client.currency)}</span>}
+                  showChevron={false}
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         <section>
           <SectionHeader

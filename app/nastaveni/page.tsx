@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getDb, type BusinessProfile } from "@/lib/db";
 import { fetchAresByIco, AresError } from "@/lib/ares";
+import { exportBackup, importBackup, BackupError } from "@/lib/backup";
 import { strings } from "@/lib/strings";
 import {
   PROFILE_ID,
@@ -14,7 +15,7 @@ import {
   downscaleImage,
 } from "@/lib/profile";
 import { PageHeader } from "@/components/PageHeader";
-import { IconImage, IconCheck, IconSearch } from "@/components/icons";
+import { IconImage, IconCheck, IconSearch, IconDownload, IconUpload } from "@/components/icons";
 
 const s = strings.nastaveni;
 
@@ -58,6 +59,9 @@ export default function NastaveniPage() {
   const [savedAt, setSavedAt] = useState(0);
   const [aresLoading, setAresLoading] = useState(false);
   const [aresError, setAresError] = useState<string | null>(null);
+  const [backupBusy, setBackupBusy] = useState<null | "export" | "import">(null);
+  const [backupMsg, setBackupMsg] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const didInit = useRef(false);
 
   // Naplníme formulář jednou, až se profil načte (i když neexistuje → defaulty).
@@ -147,6 +151,46 @@ export default function NastaveniPage() {
     const t = setTimeout(() => setSavedAt(0), 2500);
     return () => clearTimeout(t);
   }, [savedAt]);
+
+  function downloadBlob(blob: Blob, name: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function handleExport() {
+    setBackupBusy("export");
+    setBackupMsg(null);
+    try {
+      const { blob, fileName } = await exportBackup();
+      downloadBlob(blob, fileName);
+    } catch {
+      setBackupMsg(s.backupError);
+    } finally {
+      setBackupBusy(null);
+    }
+  }
+
+  async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!window.confirm(s.backupConfirm)) return;
+    setBackupBusy("import");
+    setBackupMsg(null);
+    try {
+      const r = await importBackup(file);
+      setBackupMsg(s.backupRestored(r.clients, r.projects, r.timeEntries, r.invoices));
+      // Po obnově načteme aplikaci znovu, ať se všude promítnou nová data.
+      setTimeout(() => window.location.reload(), 1400);
+    } catch (err) {
+      setBackupMsg(err instanceof BackupError ? err.message : s.backupError);
+      setBackupBusy(null);
+    }
+  }
 
   const loading = profile === undefined;
 
@@ -329,6 +373,40 @@ export default function NastaveniPage() {
               logoUrl={logoUrl}
             />
             <p className="field-hint">{s.previewNote}</p>
+          </section>
+
+          {/* Data a zálohování */}
+          <section className="panel">
+            <div className="section-header">
+              <h2>{s.backupTitle}</h2>
+            </div>
+            <p className="panel-note">{s.backupHint}</p>
+            <div className="pdf-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleExport}
+                disabled={backupBusy !== null}
+              >
+                <IconDownload /> {backupBusy === "export" ? s.backupExporting : s.backupExport}
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => fileRef.current?.click()}
+                disabled={backupBusy !== null}
+              >
+                <IconUpload /> {backupBusy === "import" ? s.backupImporting : s.backupImport}
+              </button>
+            </div>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="application/json,.json"
+              hidden
+              onChange={handleImportFile}
+            />
+            {backupMsg && <p className="field-hint">{backupMsg}</p>}
           </section>
 
           <div className="form-actions">
