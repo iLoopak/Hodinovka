@@ -93,12 +93,25 @@ export interface BusinessProfile {
   signature?: Blob;
 }
 
+/**
+ * Běžící stopky — jediný záznam (id: "current"). Ukládá se do IndexedDB,
+ * aby měření přežilo přechod mezi stránkami i zavření aplikace (PWA).
+ */
+export interface ActiveTimer {
+  id: string; // vždy "current"
+  startedAt: number; // Date.now() v ms
+  clientId: number;
+  projectId?: number | null;
+  description?: string;
+}
+
 export class HodinovkaDB extends Dexie {
   clients!: EntityTable<Client, "id">;
   projects!: EntityTable<Project, "id">;
   timeEntries!: EntityTable<TimeEntry, "id">;
   invoices!: EntityTable<Invoice, "id">;
   businessProfile!: EntityTable<BusinessProfile, "id">;
+  activeTimer!: EntityTable<ActiveTimer, "id">;
 
   constructor() {
     super("hodinovka");
@@ -135,6 +148,11 @@ export class HodinovkaDB extends Dexie {
             delete c.address;
           });
       });
+
+    // v3: běžící stopky (jediný záznam). Ostatní tabulky beze změny.
+    this.version(3).stores({
+      activeTimer: "id",
+    });
   }
 }
 

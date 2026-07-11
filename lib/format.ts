@@ -38,6 +38,21 @@ export function formatDuration(minutes: number): string {
   return `${h} h ${m} min`;
 }
 
+/** Milisekundy → běžící čas "HH:MM:SS" (pro stopky). */
+export function formatElapsed(ms: number): string {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(h)}:${pad(m)}:${pad(s)}`;
+}
+
+/** Milisekundy → zaokrouhlené minuty pro záznam práce (min. 1). */
+export function msToRoundedMinutes(ms: number): number {
+  return Math.max(1, Math.round(ms / 60000));
+}
+
 const dayFmt = new Intl.DateTimeFormat("cs-CZ", {
   weekday: "long",
   day: "numeric",

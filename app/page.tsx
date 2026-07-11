@@ -13,6 +13,7 @@ import { QuickAction } from "@/components/QuickAction";
 import { MetricCard } from "@/components/MetricCard";
 import { EmptyState } from "@/components/EmptyState";
 import { TimeEntryList } from "@/components/TimeEntryList";
+import { TimerWidget } from "@/components/TimerWidget";
 import { IconWork, IconInvoices, IconInbox, IconAlert } from "@/components/icons";
 
 const s = strings.prehled;
@@ -71,6 +72,9 @@ export default function PrehledPage() {
       />
 
       <div className="stack">
+        {/* Běžící stopky (jen když měření běží) */}
+        <TimerWidget idleHidden />
+
         <UnbilledHero
           hasWork={unbilled.entryCount > 0}
           value={unbilled.value}

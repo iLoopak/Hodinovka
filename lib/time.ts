@@ -1,10 +1,14 @@
 import type { TimeEntry, Project, Client } from "@/lib/db";
 
+/** Časová značka (ms) → místní ISO datum YYYY-MM-DD. */
+export function isoDateFromTs(ts: number): string {
+  const off = new Date(ts).getTimezoneOffset();
+  return new Date(ts - off * 60000).toISOString().slice(0, 10);
+}
+
 /** Dnešní datum jako ISO YYYY-MM-DD v místním čase. */
 export function todayIso(): string {
-  const d = new Date();
-  const off = d.getTimezoneOffset();
-  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
+  return isoDateFromTs(Date.now());
 }
 
 /** Aktuální měsíc jako "YYYY-MM". */

@@ -170,6 +170,17 @@ export const strings = {
     unbilledBadge: "Nevyfakturováno",
     noProjectLabel: "Bez projektu",
 
+    // Stopky
+    timer: {
+      title: "Stopky",
+      descriptionPlaceholder: "Na čem pracujete? (nepovinné)",
+      start: "Spustit",
+      running: "Měřím čas",
+      stop: "Zastavit a uložit",
+      discard: "Zahodit",
+      discardConfirm: "Zahodit měření bez uložení?",
+    },
+
     // Formulář
     fields: {
       client: "Klient",

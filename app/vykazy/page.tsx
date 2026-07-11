@@ -11,6 +11,7 @@ import { currentMonth, formatMonth, isInMonth, shiftMonth } from "@/lib/time";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { TimeEntryList } from "@/components/TimeEntryList";
+import { TimerWidget } from "@/components/TimerWidget";
 import { MetricCard } from "@/components/MetricCard";
 import { IconPlus, IconWork, IconArrowRight, IconArrowLeft } from "@/components/icons";
 
@@ -55,6 +56,8 @@ export default function VykazyPage() {
   return (
     <>
       <PageHeader title={s.title} action={addButton} />
+
+      <TimerWidget />
 
       {loading ? (
         <p className="loading-text">{strings.common.loading}</p>
