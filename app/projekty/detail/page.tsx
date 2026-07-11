@@ -1,19 +1,22 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getDb } from "@/lib/db";
 import { strings } from "@/lib/strings";
 import { formatDate, formatMoney } from "@/lib/format";
+import { todayIso } from "@/lib/time";
 import { billingSummary } from "@/lib/project";
-import { projectBadge } from "@/lib/status";
+import { projectBadge, invoiceStatusView, invoiceBadge } from "@/lib/status";
+import { invoiceTotal } from "@/lib/invoice";
 import { computeUnbilled } from "@/lib/metrics";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { MetricCard } from "@/components/MetricCard";
 import { EmptyState } from "@/components/EmptyState";
+import { ListRow } from "@/components/ListRow";
 import { TimeEntryList } from "@/components/TimeEntryList";
 import { IconArrowLeft, IconEdit, IconTrash, IconFolder, IconWork, IconInvoices, IconPlus } from "@/components/icons";
 
@@ -33,6 +36,8 @@ function ProjectDetail() {
   const router = useRouter();
   const params = useSearchParams();
   const id = Number(params.get("id"));
+  const [today, setToday] = useState("");
+  useEffect(() => setToday(todayIso()), []);
 
   const project = useLiveQuery(
     () => (Number.isFinite(id) ? getDb().projects.get(id).then((p) => p ?? null) : null),
@@ -105,6 +110,12 @@ function ProjectDetail() {
       </div>
 
       <div className="detail-actions">
+        <Link
+          href={`/faktury/nova/?clientId=${project.clientId}&projectId=${id}`}
+          className="btn btn-primary"
+        >
+          <IconInvoices /> {strings.faktury.add}
+        </Link>
         <Link href={`/projekty/upravit/?id=${id}`} className="btn btn-secondary">
           <IconEdit /> {strings.common.edit}
         </Link>
@@ -147,8 +158,34 @@ function ProjectDetail() {
       </section>
 
       <section className="panel">
-        <SectionHeader title={s.invoices} />
-        <EmptyState icon={<IconInvoices />} title={s.noInvoices} description={strings.faktury.upcomingHint} />
+        <SectionHeader
+          title={s.invoices}
+          action={{ href: `/faktury/nova/?clientId=${project.clientId}&projectId=${id}`, label: <><IconPlus size={15} /> {strings.faktury.add}</> }}
+        />
+        {invoices && invoices.length > 0 ? (
+          <div className="list">
+            {[...invoices]
+              .sort((a, b) => (a.issueDate < b.issueDate ? 1 : -1))
+              .map((inv) => (
+                <ListRow
+                  key={inv.id}
+                  href={`/faktury/detail/?id=${inv.id}`}
+                  leading={<span className="monogram" aria-hidden="true"><IconInvoices size={18} /></span>}
+                  title={<span className="tnum">{inv.invoiceNumber}</span>}
+                  subtitle={`splatnost ${formatDate(inv.dueDate)}`}
+                  meta={
+                    <span className="invoice-meta">
+                      <span className="tnum invoice-amount">{formatMoney(invoiceTotal(inv.items), client?.currency)}</span>
+                      <StatusBadge spec={invoiceBadge(invoiceStatusView(inv, today))} />
+                    </span>
+                  }
+                  showChevron={false}
+                />
+              ))}
+          </div>
+        ) : (
+          <EmptyState icon={<IconInvoices />} title={s.noInvoices} description={strings.faktury.emptyHint} />
+        )}
       </section>
 
       <div className="danger-zone">

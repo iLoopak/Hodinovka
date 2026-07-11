@@ -6,6 +6,10 @@ import { getDb } from "@/lib/db";
 import { strings } from "@/lib/strings";
 import { computeUnbilled } from "@/lib/metrics";
 import { projectStatus } from "@/lib/project";
+import { isoDateFromTs } from "@/lib/time";
+import { invoiceTotal } from "@/lib/invoice";
+import { invoiceStatusView, invoiceBadge } from "@/lib/status";
+import { formatMoney, formatDate } from "@/lib/format";
 import { PageHeader } from "@/components/PageHeader";
 import { SectionHeader } from "@/components/SectionHeader";
 import { UnbilledHero } from "@/components/dashboard/UnbilledHero";
@@ -13,6 +17,8 @@ import { QuickAction } from "@/components/QuickAction";
 import { MetricCard } from "@/components/MetricCard";
 import { EmptyState } from "@/components/EmptyState";
 import { TimeEntryList } from "@/components/TimeEntryList";
+import { ListRow } from "@/components/ListRow";
+import { StatusBadge } from "@/components/StatusBadge";
 import { IconWork, IconInvoices, IconInbox, IconAlert } from "@/components/icons";
 
 const s = strings.prehled;
@@ -37,6 +43,7 @@ export default function PrehledPage() {
   const clients = useLiveQuery(() => getDb().clients.toArray(), []);
   const projects = useLiveQuery(() => getDb().projects.toArray(), []);
   const timeEntries = useLiveQuery(() => getDb().timeEntries.toArray(), []);
+  const invoices = useLiveQuery(() => getDb().invoices.toArray(), []);
 
   const unbilled =
     timeEntries && projects && clients
@@ -50,6 +57,18 @@ export default function PrehledPage() {
   const recentEntries = timeEntries
     ? [...timeEntries].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 5)
     : [];
+
+  // Faktury vyžadující pozornost: vystavené po splatnosti / blížící se splatnosti.
+  const today = now ? isoDateFromTs(now.getTime()) : "";
+  const attention =
+    invoices && today
+      ? invoices
+          .filter((inv) => {
+            const v = invoiceStatusView(inv, today);
+            return v === "overdue" || v === "dueSoon";
+          })
+          .sort((a, b) => (a.dueDate < b.dueDate ? -1 : 1))
+      : [];
 
   const monthLabel = now
     ? `${MONTHS[now.getMonth()]} ${now.getFullYear()}`
@@ -85,7 +104,7 @@ export default function PrehledPage() {
             description={s.logWorkDesc}
           />
           <QuickAction
-            href="/faktury"
+            href="/faktury/nova"
             icon={<IconInvoices />}
             label={s.newInvoice}
             description={s.newInvoiceDesc}
@@ -115,12 +134,35 @@ export default function PrehledPage() {
         </section>
 
         <section>
-          <SectionHeader title={s.attention} />
-          <EmptyState
-            icon={<IconAlert />}
-            title={s.attentionEmpty}
-            description={strings.faktury.upcomingHint}
+          <SectionHeader
+            title={s.attention}
+            action={attention.length > 0 ? { href: "/faktury", label: s.viewAll } : undefined}
           />
+          {attention.length > 0 ? (
+            <div className="list">
+              {attention.map((inv) => {
+                const client = clients?.find((c) => c.id === inv.clientId);
+                return (
+                  <ListRow
+                    key={inv.id}
+                    href={`/faktury/detail/?id=${inv.id}`}
+                    leading={<span className="monogram" aria-hidden="true"><IconInvoices size={18} /></span>}
+                    title={<span className="tnum">{inv.invoiceNumber}</span>}
+                    subtitle={`${client?.name ?? ""} · splatnost ${formatDate(inv.dueDate)}`}
+                    meta={
+                      <span className="invoice-meta">
+                        <span className="tnum invoice-amount">{formatMoney(invoiceTotal(inv.items), client?.currency)}</span>
+                        <StatusBadge spec={invoiceBadge(invoiceStatusView(inv, today))} />
+                      </span>
+                    }
+                    showChevron={false}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <EmptyState icon={<IconAlert />} title={s.attentionEmpty} />
+          )}
         </section>
 
         <section>
