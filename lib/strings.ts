@@ -48,6 +48,7 @@ export const strings = {
     logWorkDesc: "Odpracované hodiny",
     newInvoice: "Nová faktura",
     newInvoiceDesc: "Vystavit doklad",
+    unbilledByClient: "Nevyfakturováno podle klienta",
     recentWork: "Poslední práce",
     recentWorkEmpty: "Zatím žádná zapsaná práce.",
     viewAll: "Zobrazit vše",
@@ -106,6 +107,7 @@ export const strings = {
       notes: "Poznámky",
     },
     nameRequired: "Vyplňte název klienta.",
+    icoInvalid: "IČO obvykle má 8 číslic.",
     saved: "Klient uložen.",
     createInline: "Vytvořit klienta",
   },
@@ -151,6 +153,7 @@ export const strings = {
     },
     nameRequired: "Vyplňte název projektu.",
     clientRequired: "Vyberte klienta.",
+    dateOrder: "Konec nemůže být dřív než začátek.",
     noClients: "Nejdřív si vytvořte klienta.",
   },
 
@@ -361,6 +364,20 @@ export const strings = {
 
     save: "Uložit profil",
     saved: "Profil uložen.",
+
+    // Data a zálohování
+    backupTitle: "Data a zálohování",
+    backupHint:
+      "Všechna data jsou uložená jen ve vašem zařízení — žádná cloudová záloha neexistuje. Pravidelně si data zálohujte do souboru a schovejte ho na bezpečné místo.",
+    backupExport: "Zálohovat data",
+    backupExporting: "Připravuji zálohu…",
+    backupImport: "Obnovit ze zálohy",
+    backupImporting: "Obnovuji…",
+    backupConfirm:
+      "Obnovení nahradí VŠECHNA současná data daty ze zálohy. Tuto akci nelze vzít zpět. Pokračovat?",
+    backupRestored: (c: number, p: number, t: number, i: number) =>
+      `Obnoveno: ${c} klientů, ${p} projektů, ${t} výkazů, ${i} faktur. Načítám znovu…`,
+    backupError: "Zálohu se nepodařilo načíst.",
   },
 
   common: {

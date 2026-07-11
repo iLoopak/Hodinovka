@@ -141,10 +141,10 @@
 
 ## Phase 8 — Polish & Data Safety
 
-- [ ] Dashboard/home view: this month's unbilled hours per client, upcoming due invoices, quick "Nová faktura" / "Nový záznam práce" actions
-- [ ] JSON export/import of the entire database (critical since there's no cloud backup — surface this prominently in settings, e.g. "Zálohovat data")
-- [ ] Basic input validation (IČO format, required fields, date logic — end date after start date, etc.)
-- [ ] Empty states and error states in Czech throughout
+- [x] Dashboard/home view: unbilled hours per client, upcoming due invoices, quick "Nová faktura" / "Nový záznam práce" actions (unbilled hero + per-client breakdown + attention list + quick actions)
+- [x] JSON export/import of the entire database — "Data a zálohování" in Nastavení: **Zálohovat data** downloads `hodinovka-zaloha-YYYY-MM-DD.json`; **Obnovit ze zálohy** replaces everything (with confirm). Blobs (logo/podpis) serialized as data URLs; PDF cache excluded (regenerable).
+- [x] Basic input validation (soft IČO 8-digit hint on client form; project end-date-before-start-date blocked with `min` + error; required name/client already enforced)
+- [x] Empty states and error states in Czech throughout (audited across lists, detail, forms, backup errors)
 
 ---
 

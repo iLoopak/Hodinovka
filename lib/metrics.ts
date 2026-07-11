@@ -38,3 +38,42 @@ export function computeUnbilled(
 
   return { minutes, value, entryCount };
 }
+
+export interface ClientUnbilled {
+  client: Client;
+  minutes: number;
+  value: number;
+  entryCount: number;
+}
+
+/**
+ * Nevyfakturovaný čas a hodnota rozdělené po klientech, seřazené sestupně
+ * podle hodnoty. Klienti bez nevyfakturované práce se vynechají.
+ */
+export function unbilledByClient(
+  entries: TimeEntry[],
+  projects: Project[],
+  clients: Client[]
+): ClientUnbilled[] {
+  const projectById = new Map(projects.map((p) => [p.id, p]));
+  const clientById = new Map(clients.map((c) => [c.id, c]));
+  const acc = new Map<number, { minutes: number; value: number; entryCount: number }>();
+
+  for (const e of entries) {
+    if (e.billed) continue;
+    const cur = acc.get(e.clientId) ?? { minutes: 0, value: 0, entryCount: 0 };
+    cur.minutes += e.durationMinutes;
+    cur.entryCount += 1;
+    const project = e.projectId != null ? projectById.get(e.projectId) : undefined;
+    cur.value += entryValue(e, project, clientById.get(e.clientId));
+    acc.set(e.clientId, cur);
+  }
+
+  const out: ClientUnbilled[] = [];
+  for (const [clientId, v] of acc) {
+    const client = clientById.get(clientId);
+    if (client) out.push({ client, ...v });
+  }
+  out.sort((a, b) => b.value - a.value || b.minutes - a.minutes);
+  return out;
+}

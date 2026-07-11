@@ -49,6 +49,7 @@ export function ProjectForm({
   const [form, setForm] = useState<FormState>(() => toFormState(existing, presetClientId));
   const [nameError, setNameError] = useState<string | null>(null);
   const [clientError, setClientError] = useState<string | null>(null);
+  const [dateError, setDateError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [creatingClient, setCreatingClient] = useState(false);
 
@@ -82,6 +83,10 @@ export function ProjectForm({
     }
     if (!name) {
       setNameError(s.nameRequired);
+      bad = true;
+    }
+    if (form.startDate && form.endDate && form.endDate < form.startDate) {
+      setDateError(s.dateOrder);
       bad = true;
     }
     if (bad) return;
@@ -184,9 +189,19 @@ export function ProjectForm({
         </div>
         <div className="field">
           <label htmlFor="endDate">{s.fields.endDate}</label>
-          <input id="endDate" type="date" value={form.endDate} onChange={(e) => set("endDate", e.target.value)} />
+          <input
+            id="endDate"
+            type="date"
+            value={form.endDate}
+            min={form.startDate || undefined}
+            onChange={(e) => {
+              set("endDate", e.target.value);
+              if (dateError) setDateError(null);
+            }}
+          />
         </div>
       </div>
+      {dateError && <p className="field-error">{dateError}</p>}
 
       <div className="field">
         <label>{s.fields.billingType}</label>
