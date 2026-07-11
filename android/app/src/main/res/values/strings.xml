@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Hodinovka</string>
+    <string name="title_activity_main">Hodinovka</string>
+    <string name="package_name">com.iloopak.hodinovka</string>
+    <string name="custom_url_scheme">com.iloopak.hodinovka</string>
+</resources>
