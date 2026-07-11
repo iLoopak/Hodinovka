@@ -245,8 +245,18 @@ export const strings = {
     itemUnit: "MJ",
     itemPrice: "Cena/MJ",
     itemTotal: "Celkem",
+    itemVat: "DPH",
     noItems: "Faktura nemá žádné položky.",
     total: "Celkem k úhradě",
+
+    // DPH
+    withVatBadge: "Faktura s DPH",
+    withVatHint: "Jste plátce DPH — k položkám se přičítá DPH.",
+    vatRateLabel: "Sazba DPH",
+    totalNet: "Základ daně",
+    vatAmount: "DPH",
+    totalGross: "Celkem s DPH",
+    vatRecap: "Rekapitulace DPH",
 
     // Údaje faktury
     detailsTitle: "Údaje faktury",
@@ -298,10 +308,18 @@ export const strings = {
       itemDescription: "Popis",
       itemQty: "Množství",
       itemUnitPrice: "Cena/MJ",
+      itemVat: "DPH",
       itemTotal: "Celkem",
       total: "Celkem k úhradě",
       notVatPayer: "Dodavatel není plátcem DPH.",
       note: "Poznámka",
+      // Rekapitulace DPH
+      vatRecap: "Rekapitulace DPH",
+      vatRate: "Sazba",
+      vatBase: "Základ",
+      vatColAmount: "DPH",
+      totalNet: "Celkem bez DPH",
+      vatTotal: "DPH celkem",
     },
 
     clientRequired: "Vyberte klienta.",

@@ -7,7 +7,7 @@ import { strings } from "@/lib/strings";
 import { computeUnbilled, unbilledByClient } from "@/lib/metrics";
 import { projectStatus } from "@/lib/project";
 import { isoDateFromTs } from "@/lib/time";
-import { invoiceTotal } from "@/lib/invoice";
+import { invoicePayable } from "@/lib/vat";
 import { invoiceStatusView, invoiceBadge } from "@/lib/status";
 import { formatMoney, formatDate, formatHours } from "@/lib/format";
 import { PageHeader } from "@/components/PageHeader";
@@ -176,7 +176,7 @@ export default function PrehledPage() {
                     subtitle={`${client?.name ?? ""} · splatnost ${formatDate(inv.dueDate)}`}
                     meta={
                       <span className="invoice-meta">
-                        <span className="tnum invoice-amount">{formatMoney(invoiceTotal(inv.items), client?.currency)}</span>
+                        <span className="tnum invoice-amount">{formatMoney(invoicePayable(inv), client?.currency)}</span>
                         <StatusBadge spec={invoiceBadge(invoiceStatusView(inv, today))} />
                       </span>
                     }

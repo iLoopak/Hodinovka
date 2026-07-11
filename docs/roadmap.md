@@ -135,7 +135,7 @@
 
 **Acceptance:** On a phone (PWA or APK), tapping "Sdílet / Odeslat e-mailem" opens the share sheet with the PDF ready to attach. On desktop, the PDF downloads and a mailto draft opens.
 
-> **Font:** Geist Sans (already the app font, OFL) is bundled as TTF in `/public/fonts` and registered with react-pdf — full Czech diacritics (the standard WinAnsi PDF fonts can't render č/ř/š/ž/ě/ů). The library + document load **dynamically** (not in the main bundle) and the fonts are cached by the service worker for offline export. **VAT note:** the data model has no per-item DPH rate, so plátci get no VAT breakdown yet — only the neplátce line is emitted; a proper VAT table is a future enhancement.
+> **Font:** Geist Sans (already the app font, OFL) is bundled as TTF in `/public/fonts` and registered with react-pdf — full Czech diacritics (the standard WinAnsi PDF fonts can't render č/ř/š/ž/ě/ů). The library + document load **dynamically** (not in the main bundle) and the fonts are cached by the service worker for offline export. **VAT:** ✅ now supported — invoice items carry a per-line DPH rate (21 / 12 / 0 %) and the invoice stores a `withVat` snapshot of the supplier's plátce status. Plátci get per-line DPH, a "Rekapitulace DPH" table by rate, and Celkem bez DPH / DPH celkem / Celkem k úhradě on the PDF and detail; neplátci keep the "Dodavatel není plátcem DPH" line. Prices are entered net (bez DPH).
 
 ---
 

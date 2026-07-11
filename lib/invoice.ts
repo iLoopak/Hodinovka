@@ -47,8 +47,9 @@ export function buildInvoiceItems(opts: {
   projects: Project[];
   client: Client;
   mode: AggregationMode;
+  vatRate?: number; // přiřadí se všem položkám (jen u faktur s DPH)
 }): InvoiceItem[] {
-  const { entries, scopedProject, projects, client, mode } = opts;
+  const { entries, scopedProject, projects, client, mode, vatRate } = opts;
 
   if (scopedProject && scopedProject.billingType === "fixed") {
     return [
@@ -57,6 +58,7 @@ export function buildInvoiceItems(opts: {
         quantity: 1,
         unit: "ks",
         unitPrice: scopedProject.rate ?? 0,
+        vatRate,
       },
     ];
   }
@@ -72,6 +74,7 @@ export function buildInvoiceItems(opts: {
         quantity: round2(e.durationMinutes / 60),
         unit: "h",
         unitPrice: rateFor(p, client),
+        vatRate,
       };
     });
   }
@@ -90,5 +93,6 @@ export function buildInvoiceItems(opts: {
     quantity: round2(g.minutes / 60),
     unit: "h",
     unitPrice: rateFor(g.project, client),
+    vatRate,
   }));
 }

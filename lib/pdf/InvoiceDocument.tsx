@@ -66,9 +66,10 @@ const styles = StyleSheet.create({
     borderBottomColor: ROW_LINE,
   },
   colDesc: { flex: 1, paddingRight: 8 },
-  colQty: { width: 74, textAlign: "right" },
-  colPrice: { width: 78, textAlign: "right" },
-  colTotal: { width: 82, textAlign: "right" },
+  colQty: { width: 70, textAlign: "right" },
+  colPrice: { width: 74, textAlign: "right" },
+  colVat: { width: 40, textAlign: "right" },
+  colTotal: { width: 78, textAlign: "right" },
 
   totals: { flexDirection: "row", justifyContent: "flex-end", marginTop: 12 },
   totalBox: {
@@ -82,6 +83,29 @@ const styles = StyleSheet.create({
   totalLabel: { fontSize: 11, fontWeight: 600 },
   totalValue: { fontSize: 15, fontWeight: 700 },
   note: { marginTop: 14, color: MUTED },
+
+  // Rekapitulace DPH
+  recap: { marginTop: 16, marginLeft: "auto", width: 280 },
+  recapHead: {
+    flexDirection: "row",
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: LINE,
+  },
+  recapRow: { flexDirection: "row", paddingVertical: 3, paddingHorizontal: 6 },
+  rcLabel: { fontSize: 8, fontWeight: 700, color: MUTED },
+  rcRate: { width: 70 },
+  rcBase: { flex: 1, textAlign: "right" },
+  rcVat: { width: 90, textAlign: "right" },
+
+  sumBox: { minWidth: 260 },
+  sumRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 2,
+    color: MUTED,
+  },
 
   footer: {
     marginTop: 30,
@@ -205,12 +229,17 @@ function ItemsTable({ data }: { data: InvoiceData }) {
     : { backgroundColor: accent };
   const headColor = minimal ? INK : "#ffffff";
 
+  const withVat = data.withVat;
+
   return (
     <View style={styles.table}>
       <View style={[styles.th, headStyle]}>
         <Text style={[styles.thText, styles.colDesc, { color: headColor }]}>{P.itemDescription}</Text>
         <Text style={[styles.thText, styles.colQty, { color: headColor }]}>{P.itemQty}</Text>
         <Text style={[styles.thText, styles.colPrice, { color: headColor }]}>{P.itemUnitPrice}</Text>
+        {withVat && (
+          <Text style={[styles.thText, styles.colVat, { color: headColor }]}>{P.itemVat}</Text>
+        )}
         <Text style={[styles.thText, styles.colTotal, { color: headColor }]}>{P.itemTotal}</Text>
       </View>
       {data.items.map((it, i) => (
@@ -220,6 +249,7 @@ function ItemsTable({ data }: { data: InvoiceData }) {
             {qtyFmt.format(it.quantity)} {it.unit}
           </Text>
           <Text style={styles.colPrice}>{money(it.unitPrice)}</Text>
+          {withVat && <Text style={styles.colVat}>{it.vatRate} %</Text>}
           <Text style={styles.colTotal}>{money(it.total)}</Text>
         </View>
       ))}
@@ -230,15 +260,57 @@ function ItemsTable({ data }: { data: InvoiceData }) {
 function Totals({ data }: { data: InvoiceData }) {
   const accent = data.accentColor;
   const money = (n: number) => formatMoney(n, data.currency);
+
+  if (!data.withVat) {
+    return (
+      <View>
+        <View style={styles.totals}>
+          <View style={[styles.totalBox, { borderTopColor: accent }]}>
+            <Text style={styles.totalLabel}>{P.total}</Text>
+            <Text style={[styles.totalValue, { color: accent }]}>{money(data.totalAmount)}</Text>
+          </View>
+        </View>
+        <Text style={styles.note}>{P.notVatPayer}</Text>
+        {data.paymentTerms ? <Text style={styles.note}>{data.paymentTerms}</Text> : null}
+      </View>
+    );
+  }
+
   return (
     <View>
+      {/* Rekapitulace DPH */}
+      <View style={styles.recap}>
+        <View style={styles.recapHead}>
+          <Text style={[styles.rcLabel, styles.rcRate]}>{P.vatRate}</Text>
+          <Text style={[styles.rcLabel, styles.rcBase]}>{P.vatBase}</Text>
+          <Text style={[styles.rcLabel, styles.rcVat]}>{P.vatColAmount}</Text>
+        </View>
+        {data.recap.map((r) => (
+          <View style={styles.recapRow} key={r.rate}>
+            <Text style={styles.rcRate}>{r.rate} %</Text>
+            <Text style={styles.rcBase}>{money(r.base)}</Text>
+            <Text style={styles.rcVat}>{money(r.vat)}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Souhrn */}
       <View style={styles.totals}>
-        <View style={[styles.totalBox, { borderTopColor: accent }]}>
-          <Text style={styles.totalLabel}>{P.total}</Text>
-          <Text style={[styles.totalValue, { color: accent }]}>{money(data.totalAmount)}</Text>
+        <View style={styles.sumBox}>
+          <View style={styles.sumRow}>
+            <Text>{P.totalNet}</Text>
+            <Text>{money(data.net)}</Text>
+          </View>
+          <View style={styles.sumRow}>
+            <Text>{P.vatTotal}</Text>
+            <Text>{money(data.vatAmount)}</Text>
+          </View>
+          <View style={[styles.totalBox, { borderTopColor: accent }]}>
+            <Text style={styles.totalLabel}>{P.total}</Text>
+            <Text style={[styles.totalValue, { color: accent }]}>{money(data.gross)}</Text>
+          </View>
         </View>
       </View>
-      {!data.isVatPayer && <Text style={styles.note}>{P.notVatPayer}</Text>}
       {data.paymentTerms ? <Text style={styles.note}>{data.paymentTerms}</Text> : null}
     </View>
   );

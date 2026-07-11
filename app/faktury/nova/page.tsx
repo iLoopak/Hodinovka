@@ -14,12 +14,20 @@ import {
   invoiceNumberToVs,
   type AggregationMode,
 } from "@/lib/invoice";
+import { PROFILE_ID } from "@/lib/profile";
+import { VAT_RATES, DEFAULT_VAT_RATE } from "@/lib/vat";
 import { PageHeader } from "@/components/PageHeader";
 import { IconArrowLeft, IconPlus, IconTrash } from "@/components/icons";
 
 const s = strings.faktury;
 
-type EditItem = { description: string; quantity: string; unit: string; unitPrice: string };
+type EditItem = {
+  description: string;
+  quantity: string;
+  unit: string;
+  unitPrice: string;
+  vatRate: string;
+};
 
 const parseNum = (v: string) => {
   const n = Number(v.replace(",", "."));
@@ -30,10 +38,17 @@ const toEdit = (it: InvoiceItem): EditItem => ({
   quantity: String(it.quantity),
   unit: it.unit,
   unitPrice: String(it.unitPrice),
+  vatRate: String(it.vatRate ?? DEFAULT_VAT_RATE),
 });
 // Prázdná ruční položka — výchozí MJ „ks" (paušál: množství × cena),
 // hodinové položky si nese předvyplnění z výkazů (MJ „h").
-const emptyItem = (): EditItem => ({ description: "", quantity: "1", unit: "ks", unitPrice: "" });
+const emptyItem = (): EditItem => ({
+  description: "",
+  quantity: "1",
+  unit: "ks",
+  unitPrice: "",
+  vatRate: String(DEFAULT_VAT_RATE),
+});
 
 function NovaFaktura() {
   const router = useRouter();
@@ -45,6 +60,11 @@ function NovaFaktura() {
   const projects = useLiveQuery(() => getDb().projects.orderBy("name").toArray(), []);
   const entriesAll = useLiveQuery(() => getDb().timeEntries.toArray(), []);
   const invoices = useLiveQuery(() => getDb().invoices.toArray(), []);
+  const profile = useLiveQuery(
+    () => getDb().businessProfile.get(PROFILE_ID).then((p) => p ?? null),
+    []
+  );
+  const withVat = profile?.isVatPayer ?? false;
 
   const [clientId, setClientId] = useState(presetClientId ?? "");
   const [projectId, setProjectId] = useState(presetProjectId ?? "");
@@ -110,6 +130,7 @@ function NovaFaktura() {
       projects: projects ?? [],
       client,
       mode,
+      vatRate: withVat ? DEFAULT_VAT_RATE : undefined,
     });
     // Když v období nic není, necháme prázdnou položku k ručnímu vyplnění.
     setItems(built.length ? built.map(toEdit) : [emptyItem()]);
@@ -136,7 +157,18 @@ function NovaFaktura() {
     setItems((arr) => arr.filter((_, idx) => idx !== i));
   }
 
-  const total = items.reduce((sum, it) => sum + parseNum(it.quantity) * parseNum(it.unitPrice), 0);
+  const netTotal = items.reduce(
+    (sum, it) => sum + parseNum(it.quantity) * parseNum(it.unitPrice),
+    0
+  );
+  const vatTotal = withVat
+    ? items.reduce(
+        (sum, it) =>
+          sum + parseNum(it.quantity) * parseNum(it.unitPrice) * (parseNum(it.vatRate) / 100),
+        0
+      )
+    : 0;
+  const grossTotal = netTotal + vatTotal;
 
   async function save() {
     setError(null);
@@ -153,6 +185,7 @@ function NovaFaktura() {
         quantity: parseNum(it.quantity),
         unit: it.unit.trim() || "h",
         unitPrice: parseNum(it.unitPrice),
+        vatRate: withVat ? parseNum(it.vatRate) : undefined,
       }));
     if (finalItems.length === 0) {
       setError(s.itemsRequired);
@@ -171,6 +204,7 @@ function NovaFaktura() {
       items: finalItems,
       status: "draft",
       createdFromTimeEntries: includedIds.length > 0,
+      withVat,
     };
     const db = getDb();
     const id = (await db.invoices.add(record)) as number;
@@ -257,6 +291,8 @@ function NovaFaktura() {
               </button>
             </div>
 
+            {withVat && <p className="panel-note">{s.withVatHint}</p>}
+
             {/* Volitelný pomocník: předvyplnit položky z nevyfakturovaných výkazů */}
             <div className="work-source">
               <button
@@ -341,6 +377,20 @@ function NovaFaktura() {
                         placeholder="0"
                         aria-label={s.itemPrice}
                       />
+                      {withVat && (
+                        <select
+                          className="ii-vat tnum"
+                          value={it.vatRate}
+                          onChange={(e) => setItem(i, { vatRate: e.target.value })}
+                          aria-label={s.vatRateLabel}
+                        >
+                          {VAT_RATES.map((r) => (
+                            <option key={r} value={r}>
+                              {r} %
+                            </option>
+                          ))}
+                        </select>
+                      )}
                       <span className="ii-total tnum">
                         {formatMoney(parseNum(it.quantity) * parseNum(it.unitPrice), client?.currency)}
                       </span>
@@ -358,10 +408,27 @@ function NovaFaktura() {
               </div>
             )}
 
-            <div className="invoice-total">
-              <span>{s.total}</span>
-              <span className="tnum">{formatMoney(total, client?.currency)}</span>
-            </div>
+            {withVat ? (
+              <div className="invoice-total-vat">
+                <div className="itv-row">
+                  <span>{s.totalNet}</span>
+                  <span className="tnum">{formatMoney(netTotal, client?.currency)}</span>
+                </div>
+                <div className="itv-row">
+                  <span>{s.vatAmount}</span>
+                  <span className="tnum">{formatMoney(vatTotal, client?.currency)}</span>
+                </div>
+                <div className="invoice-total">
+                  <span>{s.totalGross}</span>
+                  <span className="tnum">{formatMoney(grossTotal, client?.currency)}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="invoice-total">
+                <span>{s.total}</span>
+                <span className="tnum">{formatMoney(netTotal, client?.currency)}</span>
+              </div>
+            )}
           </section>
 
           {/* Údaje faktury */}

@@ -5,12 +5,21 @@
 import type { Invoice, Client, BusinessProfile } from "@/lib/db";
 import { formatDate } from "@/lib/format";
 import { DEFAULT_ACCENT, type TemplateId } from "@/lib/profile";
+import {
+  invoiceNet,
+  invoiceVat,
+  invoiceGross,
+  vatRecap,
+  itemVatRate,
+  type VatRecapLine,
+} from "@/lib/vat";
 
 export interface PdfItem {
   description: string;
   quantity: number;
   unit: string;
   unitPrice: number;
+  vatRate: number;
   total: number;
 }
 
@@ -37,9 +46,14 @@ export interface InvoiceData {
   };
 
   items: PdfItem[];
-  totalAmount: number;
+  totalAmount: number; // částka k úhradě (s DPH u plátce, jinak základ)
   currency: string;
-  isVatPayer: boolean;
+  // DPH
+  withVat: boolean;
+  net: number;
+  vatAmount: number;
+  gross: number;
+  recap: VatRecapLine[];
   paymentTerms?: string;
   footerNote?: string;
 
@@ -68,8 +82,14 @@ export function buildInvoiceData(
     quantity: it.quantity,
     unit: it.unit,
     unitPrice: it.unitPrice,
+    vatRate: itemVatRate(it),
     total: it.quantity * it.unitPrice,
   }));
+
+  const withVat = invoice.withVat ?? false;
+  const net = invoiceNet(invoice.items);
+  const vatAmount = invoiceVat(invoice.items, withVat);
+  const gross = invoiceGross(invoice.items, withVat);
 
   return {
     invoiceNumber: invoice.invoiceNumber,
@@ -94,9 +114,13 @@ export function buildInvoiceData(
     },
 
     items,
-    totalAmount: items.reduce((sum, it) => sum + it.total, 0),
+    totalAmount: withVat ? gross : net,
     currency: client?.currency ?? "CZK",
-    isVatPayer: profile?.isVatPayer ?? false,
+    withVat,
+    net,
+    vatAmount,
+    gross,
+    recap: withVat ? vatRecap(invoice.items) : [],
     paymentTerms: profile?.paymentTerms,
     footerNote: profile?.footerNote,
 
@@ -123,6 +147,7 @@ export function pdfSignature(
       i: invoice.issueDate,
       d: invoice.dueDate,
       t: invoice.taxableSupplyDate ?? "",
+      wv: invoice.withVat ?? false,
       items: invoice.items,
     },
     cl: client
