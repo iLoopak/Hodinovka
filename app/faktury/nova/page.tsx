@@ -63,12 +63,12 @@ function NovaFaktura() {
   const [saving, setSaving] = useState(false);
   const didAuto = useRef(false);
 
-  // Výchozí rozsah (minulý měsíc) a data.
+  // Výchozí rozsah: od začátku minulého měsíce do dneška — ať se nevynechá
+  // práce zapsaná v aktuálním měsíci (fakturovat lze i rozdělanou práci).
   useEffect(() => {
-    const r = previousMonthRange();
-    setFrom(r.from);
-    setTo(r.to);
     const t = todayIso();
+    setFrom(previousMonthRange().from);
+    setTo(t);
     setIssueDate(t);
     setTaxableSupplyDate(t);
     setDueDate(addDays(t, 14));
