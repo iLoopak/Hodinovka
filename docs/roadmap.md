@@ -128,12 +128,14 @@
 
 **Goal:** Turn a finished invoice into a PDF and get it into an email in one tap.
 
-- [ ] "Generate PDF" button on invoice detail — renders using `@react-pdf/renderer` (or `pdf-lib` if you prefer manual layout control), respecting Czech invoice legal fields (dodavatel/odběratel IČO+DIČ, datum vystavení/splatnosti, VS, bankovní spojení, "vystaveno plátcem/neplátcem DPH" line)
-- [ ] "Sdílet / Odeslat e-mailem" button: use `navigator.canShare({ files })` + `navigator.share()` to open the native share sheet with the PDF attached (works well on Android/Capacitor and modern mobile browsers)
-- [ ] Fallback for desktop browsers without file-sharing support: download the PDF + open a `mailto:` link with subject/body pre-filled (attachment can't be auto-added via mailto, so UI should clearly say "PDF stažen — prosím přiložte jej ručně k e-mailu")
-- [ ] Cache generated PDF blob on the invoice record so re-opening doesn't regenerate unless data changed
+- [x] "Stáhnout PDF" + "Sdílet / Odeslat e-mailem" on invoice detail — renders with `@react-pdf/renderer`, respecting Czech legal fields (dodavatel/odběratel IČO+DIČ, datum vystavení/DUZP/splatnosti, VS, forma úhrady, bankovní spojení + IBAN, "Dodavatel není plátcem DPH" pro neplátce). Three templates from the profile (`classic-left` / `classic-right` / `minimal`), accent-coloured header + table.
+- [x] "Sdílet / Odeslat e-mailem": `navigator.canShare({ files })` + `navigator.share()` → native share sheet with the PDF attached.
+- [x] Desktop fallback: download the PDF + open a `mailto:` draft (subject/body pre-filled), with the hint "PDF bylo staženo — přiložte ho prosím ručně".
+- [x] Cache generated PDF blob on the invoice record (`pdfBlob` + `pdfSignature`); regenerates only when invoice/client/profile data changes.
 
-**Acceptance:** On a phone (PWA or APK), tapping "Odeslat e-mailem" opens the share sheet with the PDF ready to attach to a Mail app message. On desktop, at minimum the PDF downloads and a mailto draft opens.
+**Acceptance:** On a phone (PWA or APK), tapping "Sdílet / Odeslat e-mailem" opens the share sheet with the PDF ready to attach. On desktop, the PDF downloads and a mailto draft opens.
+
+> **Font:** Geist Sans (already the app font, OFL) is bundled as TTF in `/public/fonts` and registered with react-pdf — full Czech diacritics (the standard WinAnsi PDF fonts can't render č/ř/š/ž/ě/ů). The library + document load **dynamically** (not in the main bundle) and the fonts are cached by the service worker for offline export. **VAT note:** the data model has no per-item DPH rate, so plátci get no VAT breakdown yet — only the neplátce line is emitted; a proper VAT table is a future enhancement.
 
 ---
 

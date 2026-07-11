@@ -10,10 +10,12 @@ import { formatMoney, formatDate } from "@/lib/format";
 import { todayIso } from "@/lib/time";
 import { invoiceTotal } from "@/lib/invoice";
 import { invoiceStatusView, invoiceBadge } from "@/lib/status";
+import { PROFILE_ID } from "@/lib/profile";
+import { buildInvoiceData, pdfSignature } from "@/lib/pdf/invoiceData";
+import { generateInvoicePdf, blobToDataUrl } from "@/lib/pdf/generate";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StatusBadge } from "@/components/StatusBadge";
-import { EmptyState } from "@/components/EmptyState";
-import { IconArrowLeft, IconInvoices, IconTrash, IconCheck } from "@/components/icons";
+import { IconArrowLeft, IconInvoices, IconTrash, IconCheck, IconDownload, IconShare } from "@/components/icons";
 
 const s = strings.faktury;
 
@@ -42,6 +44,13 @@ function InvoiceDetail() {
     () => (invoice ? getDb().clients.get(invoice.clientId).then((c) => c ?? null) : null),
     [invoice?.clientId]
   );
+  const profile = useLiveQuery(
+    () => getDb().businessProfile.get(PROFILE_ID).then((p) => p ?? null),
+    []
+  );
+
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfMsg, setPdfMsg] = useState<string | null>(null);
 
   if (invoice === undefined || !today) {
     return <p className="loading-text">{strings.common.loading}</p>;
@@ -70,6 +79,74 @@ function InvoiceDetail() {
     await getDb().timeEntries.where("invoiceId").equals(id).modify({ billed: false, invoiceId: null });
     await getDb().invoices.delete(id);
     router.replace("/faktury");
+  }
+
+  const invoiceNumber = invoice.invoiceNumber;
+  const fileName = `faktura-${invoiceNumber.replace(/[^\w.-]+/g, "-")}.pdf`;
+
+  // Vrátí PDF z cache (pokud se data nezměnila), jinak vygeneruje a uloží.
+  async function getOrBuildPdf(): Promise<Blob> {
+    const db = getDb();
+    const inv = await db.invoices.get(id);
+    if (!inv) throw new Error("missing invoice");
+    const cl = await db.clients.get(inv.clientId);
+    const pr = await db.businessProfile.get(PROFILE_ID);
+    const signature = pdfSignature(inv, cl, pr);
+    if (inv.pdfBlob && inv.pdfSignature === signature) return inv.pdfBlob;
+
+    const [logoUrl, signatureUrl] = await Promise.all([
+      pr?.logo ? blobToDataUrl(pr.logo) : Promise.resolve(undefined),
+      pr?.signature ? blobToDataUrl(pr.signature) : Promise.resolve(undefined),
+    ]);
+    const data = buildInvoiceData(inv, cl, pr, { logoUrl, signatureUrl });
+    const blob = await generateInvoicePdf(data);
+    await db.invoices.update(id, { pdfBlob: blob, pdfSignature: signature });
+    return blob;
+  }
+
+  function downloadBlob(blob: Blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function handleDownload() {
+    setPdfBusy(true);
+    setPdfMsg(null);
+    try {
+      downloadBlob(await getOrBuildPdf());
+    } catch {
+      setPdfMsg(s.pdfError);
+    } finally {
+      setPdfBusy(false);
+    }
+  }
+
+  async function handleShare() {
+    setPdfBusy(true);
+    setPdfMsg(null);
+    try {
+      const blob = await getOrBuildPdf();
+      const file = new File([blob], fileName, { type: "application/pdf" });
+      const nav = navigator as Navigator & { canShare?: (d?: ShareData) => boolean };
+      if (nav.canShare?.({ files: [file] })) {
+        await nav.share({ files: [file], title: s.mailSubject(invoiceNumber) });
+      } else {
+        // Fallback (desktop): stáhnout PDF a otevřít předvyplněný e-mail.
+        downloadBlob(blob);
+        const subject = encodeURIComponent(s.mailSubject(invoiceNumber));
+        const body = encodeURIComponent(s.mailBody(invoiceNumber));
+        window.location.href = `mailto:${client?.email ?? ""}?subject=${subject}&body=${body}`;
+        setPdfMsg(s.pdfManualAttach);
+      }
+    } catch (err) {
+      if ((err as Error)?.name !== "AbortError") setPdfMsg(s.pdfError);
+    } finally {
+      setPdfBusy(false);
+    }
   }
 
   return (
@@ -149,9 +226,30 @@ function InvoiceDetail() {
         <DetailRow label={s.dueDate} value={<span className="tnum">{formatDate(invoice.dueDate)}</span>} />
       </section>
 
-      {/* Export PDF — příští fáze */}
+      {/* Export PDF */}
       <section className="panel">
-        <EmptyState icon={<IconInvoices />} title={strings.faktury.title} description={s.pdfNote} />
+        <SectionHeader title={s.exportTitle} />
+        <div className="pdf-actions">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleDownload}
+            disabled={pdfBusy}
+          >
+            <IconDownload /> {s.pdfDownload}
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handleShare}
+            disabled={pdfBusy}
+          >
+            <IconShare /> {s.pdfShare}
+          </button>
+        </div>
+        {pdfBusy && <p className="field-hint">{s.pdfGenerating}</p>}
+        {pdfMsg && <p className="field-hint">{pdfMsg}</p>}
+        {profile && !profile.name && <p className="field-hint">{s.pdfProfileHint}</p>}
       </section>
 
       <div className="danger-zone">

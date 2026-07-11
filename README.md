@@ -9,8 +9,9 @@ UI je zatím **jen česky**.
 - **Next.js** (App Router, statický export `output: "export"`)
 - **Dexie.js** (obálka nad IndexedDB)
 - **PWA** — `manifest.json` + vlastní service worker (offline shell)
-- **Geist** (lokální font přes `next/font`, offline-safe)
-- později: `@react-pdf/renderer` (PDF faktury), Capacitor (APK)
+- **Geist** (lokální font přes `next/font`, offline-safe; TTF verze v `public/fonts` slouží i pro PDF)
+- **@react-pdf/renderer** (PDF faktury; načítá se dynamicky až při exportu)
+- později: Capacitor (APK)
 
 ## Vizuální systém
 
@@ -43,14 +44,16 @@ docs/           # roadmap.md + faktura-pdf-layout.md
 
 Postup vývoje po fázích viz [`docs/roadmap.md`](docs/roadmap.md).
 
-**Stav:** Fáze 6 (Personalizace faktur) hotová — sekce **Nastavení**
-s firemním profilem (dodavatel), ze kterého budou čerpat faktury: název,
-adresa, IČO/DIČ, plátce DPH, číslo účtu/IBAN, platební podmínky a patička,
-nahrání loga a podpisu (zmenšení přes canvas → Blob v IndexedDB), výběr
-akcentové barvy a šablony (3 rozvržení) + živý náhled hlavičky faktury.
-Hotové i Fáze 1–5: Klienti + ARES, Projekty, Výkazy práce (vč. stopek),
-faktury z výkazů i ruční vystavení, vizuální systém. Vlastní render PDF
-a odeslání e-mailem (Fáze 7) zatím čeká — náhled je zatím jen v Nastavení.
+**Stav:** Fáze 7 (Export PDF + sdílení) hotová — z detailu faktury lze
+vygenerovat **PDF daňového dokladu** (`@react-pdf/renderer`, 3 šablony
+z profilu, akcentová barva, logo/podpis, plná česká diakritika přes lokální
+font Geist) a buď ho **stáhnout**, nebo **Sdílet / Odeslat e-mailem** přes
+systémový share sheet (`navigator.share` s přílohou); na desktopu fallback =
+stažení PDF + předvyplněný `mailto:`. Vygenerované PDF se cachuje na faktuře
+a regeneruje se jen při změně dat. Hotové i Fáze 1–6: Klienti + ARES,
+Projekty, Výkazy práce (vč. stopek), faktury z výkazů i ruční, firemní profil
+v Nastavení, vizuální systém. Zbývá Fáze 8 (leštění a záloha/obnova dat)
+a volitelně Fáze 9 (Capacitor APK).
 
 > ARES posílá `Access-Control-Allow-Origin: *`, takže se volá přímo
 > z prohlížeče (`lib/ares.ts`) — žádný proxy/backend není potřeba a lookup

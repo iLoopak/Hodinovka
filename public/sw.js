@@ -10,7 +10,7 @@
  * jen skořápku appky.
  */
 
-const CACHE = "hodinovka-shell-v7";
+const CACHE = "hodinovka-shell-v8";
 const SHELL = [
   "/",
   "/klienti/",
@@ -30,6 +30,11 @@ const SHELL = [
   "/nastaveni/",
   "/manifest.json",
   "/icon.svg",
+  // Fonty pro PDF export (Geist, plná česká diakritika) — ať jde export offline.
+  "/fonts/Geist-Regular.ttf",
+  "/fonts/Geist-Medium.ttf",
+  "/fonts/Geist-SemiBold.ttf",
+  "/fonts/Geist-Bold.ttf",
 ];
 
 self.addEventListener("install", (event) => {

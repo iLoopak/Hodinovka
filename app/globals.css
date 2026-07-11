@@ -821,6 +821,17 @@ a.list-row:hover {
   }
 }
 
+/* Export PDF — akce na detailu faktury */
+.pdf-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.pdf-actions .btn {
+  flex: 1;
+  min-width: 160px;
+}
+
 /* Zóna nebezpečí (mazání) */
 .danger-zone {
   margin-top: var(--space-7);
