@@ -70,6 +70,10 @@ export interface Invoice {
   items: InvoiceItem[];
   status: InvoiceStatus;
   createdFromTimeEntries: boolean;
+  // Cache vygenerovaného PDF — aby se při dalším otevření neregenerovalo,
+  // dokud se nezmění data (porovnává se `pdfSignature`). Neindexováno.
+  pdfBlob?: Blob;
+  pdfSignature?: string;
 }
 
 /**

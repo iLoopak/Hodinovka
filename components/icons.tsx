@@ -144,6 +144,18 @@ export const IconImage = (p: IconProps) => (
   </Icon>
 );
 
+export const IconDownload = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2" />
+  </Icon>
+);
+
+export const IconShare = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 3v13M12 3 8 7m4-4 4 4M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" />
+  </Icon>
+);
+
 export const IconPlay = (p: IconProps) => (
   <Icon {...p}>
     <path d="M7 4.5v15l12-7.5-12-7.5Z" fill="currentColor" stroke="none" />

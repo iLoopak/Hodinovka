@@ -259,9 +259,47 @@ export const strings = {
     markIssued: "Označit jako vystavenou",
     markPaid: "Označit jako zaplacenou",
     markDraft: "Vrátit na koncept",
-    pdfNote: "Export do PDF a odeslání e-mailem přijde v dalších fázích.",
     deleteConfirm:
       "Opravdu smazat fakturu? Navázané výkazy se opět označí jako nevyfakturované.",
+
+    // Export PDF
+    exportTitle: "Export",
+    pdfDownload: "Stáhnout PDF",
+    pdfShare: "Sdílet / Odeslat e-mailem",
+    pdfGenerating: "Generuji PDF…",
+    pdfManualAttach:
+      "PDF bylo staženo — přiložte ho prosím ručně k e-mailu (otevřeli jsme koncept).",
+    pdfError: "PDF se nepodařilo vytvořit.",
+    pdfProfileHint:
+      "Tip: doplňte si firemní profil v Nastavení, aby faktura obsahovala údaje dodavatele.",
+    mailSubject: (num: string) => `Faktura ${num}`,
+    mailBody: (num: string) =>
+      `Dobrý den,\n\nv příloze zasílám fakturu ${num}.\n\nS pozdravem`,
+
+    // Texty přímo v PDF (daňový doklad)
+    pdf: {
+      title: "FAKTURA",
+      numberPrefix: "č.",
+      supplier: "DODAVATEL",
+      customer: "ODBĚRATEL",
+      ico: "IČO",
+      dic: "DIČ",
+      issueDate: "Datum vystavení",
+      taxableSupplyDate: "DUZP",
+      dueDate: "Datum splatnosti",
+      vs: "Variabilní symbol",
+      paymentMethod: "Forma úhrady",
+      paymentMethodValue: "Bankovním převodem",
+      bankAccount: "Bankovní účet",
+      iban: "IBAN",
+      itemDescription: "Popis",
+      itemQty: "Množství",
+      itemUnitPrice: "Cena/MJ",
+      itemTotal: "Celkem",
+      total: "Celkem k úhradě",
+      notVatPayer: "Dodavatel není plátcem DPH.",
+      note: "Poznámka",
+    },
 
     clientRequired: "Vyberte klienta.",
     itemsRequired: "Faktura musí mít alespoň jednu položku.",
