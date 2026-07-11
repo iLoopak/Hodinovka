@@ -31,6 +31,9 @@ const toEdit = (it: InvoiceItem): EditItem => ({
   unit: it.unit,
   unitPrice: String(it.unitPrice),
 });
+// Prázdná ruční položka — výchozí MJ „ks" (paušál: množství × cena),
+// hodinové položky si nese předvyplnění z výkazů (MJ „h").
+const emptyItem = (): EditItem => ({ description: "", quantity: "1", unit: "ks", unitPrice: "" });
 
 function NovaFaktura() {
   const router = useRouter();
@@ -49,9 +52,12 @@ function NovaFaktura() {
   const [to, setTo] = useState("");
   const [mode, setMode] = useState<AggregationMode>("perProject");
 
-  const [items, setItems] = useState<EditItem[]>([]);
+  const [items, setItems] = useState<EditItem[]>(() => [emptyItem()]);
   const [includedIds, setIncludedIds] = useState<number[]>([]);
   const [generated, setGenerated] = useState(false);
+  // Předvyplnění z výkazů je pomocník, ne povinný krok — rozbalený jen když
+  // faktura vznikla z detailu klienta/projektu (tam je záměr fakturovat práci).
+  const [showTimeSource, setShowTimeSource] = useState(!!presetClientId);
 
   const [number, setNumber] = useState("");
   const [vs, setVs] = useState("");
@@ -105,7 +111,8 @@ function NovaFaktura() {
       client,
       mode,
     });
-    setItems(built.map(toEdit));
+    // Když v období nic není, necháme prázdnou položku k ručnímu vyplnění.
+    setItems(built.length ? built.map(toEdit) : [emptyItem()]);
     setIncludedIds(candidates.map((e) => e.id!).filter((x) => x != null));
     setGenerated(true);
   }
@@ -123,7 +130,7 @@ function NovaFaktura() {
     setItems((arr) => arr.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
   }
   function addItem() {
-    setItems((arr) => [...arr, { description: "", quantity: "1", unit: "h", unitPrice: "" }]);
+    setItems((arr) => [...arr, emptyItem()]);
   }
   function removeItem(i: number) {
     setItems((arr) => arr.filter((_, idx) => idx !== i));
@@ -137,8 +144,10 @@ function NovaFaktura() {
       setError(s.clientRequired);
       return;
     }
+    // Bereme jen položky s popisem nebo nenulovou cenou — prázdný startovací
+    // řádek (množství „1", jinak prázdný) se do faktury nedostane.
     const finalItems: InvoiceItem[] = items
-      .filter((it) => it.description.trim() || parseNum(it.quantity) || parseNum(it.unitPrice))
+      .filter((it) => it.description.trim() !== "" || parseNum(it.unitPrice) !== 0)
       .map((it) => ({
         description: it.description.trim(),
         quantity: parseNum(it.quantity),
@@ -191,10 +200,10 @@ function NovaFaktura() {
         <p className="loading-text">{strings.common.loading}</p>
       ) : (
         <div className="form">
-          {/* Zdroj: klient / projekt / období / rozdělení */}
+          {/* Klient a projekt */}
           <section className="panel">
             <div className="section-header">
-              <h2>{s.params}</h2>
+              <h2>{strings.vykazy.fields.client}</h2>
             </div>
 
             <div className="field">
@@ -237,47 +246,64 @@ function NovaFaktura() {
                 ))}
               </select>
             </div>
-
-            <div className="field-grid">
-              <div className="field">
-                <label htmlFor="from">{s.rangeFrom}</label>
-                <input id="from" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
-              </div>
-              <div className="field">
-                <label htmlFor="to">{s.rangeTo}</label>
-                <input id="to" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
-              </div>
-            </div>
-
-            <div className="field">
-              <label>{s.mode}</label>
-              <div className="segmented" role="group" aria-label={s.mode}>
-                <button type="button" data-active={mode === "perProject"} onClick={() => setMode("perProject")}>
-                  {s.modePerProject}
-                </button>
-                <button type="button" data-active={mode === "perEntry"} onClick={() => setMode("perEntry")}>
-                  {s.modePerEntry}
-                </button>
-              </div>
-            </div>
-
-            <button type="button" className="btn btn-secondary" onClick={generate} disabled={!clientId}>
-              {generated ? s.regenerate : s.generate}
-            </button>
-            {generated && (
-              <p className="field-hint">
-                {includedIds.length > 0 ? s.includedCount(includedIds.length) : s.noUnbilled}
-              </p>
-            )}
           </section>
 
-          {/* Položky */}
+          {/* Položky (ruční zadání je hlavní cesta) */}
           <section className="panel">
             <div className="section-header">
               <h2>{s.itemsTitle}</h2>
               <button type="button" className="section-action" onClick={addItem}>
                 <IconPlus size={15} /> {s.addItem}
               </button>
+            </div>
+
+            {/* Volitelný pomocník: předvyplnit položky z nevyfakturovaných výkazů */}
+            <div className="work-source">
+              <button
+                type="button"
+                className="work-source-toggle"
+                aria-expanded={showTimeSource}
+                onClick={() => setShowTimeSource((v) => !v)}
+              >
+                {showTimeSource ? s.hide : s.loadFromWork}
+              </button>
+
+              {showTimeSource && (
+                <div className="work-source-body">
+                  <div className="field-grid">
+                    <div className="field">
+                      <label htmlFor="from">{s.rangeFrom}</label>
+                      <input id="from" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+                    </div>
+                    <div className="field">
+                      <label htmlFor="to">{s.rangeTo}</label>
+                      <input id="to" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+                    </div>
+                  </div>
+
+                  <div className="field">
+                    <label>{s.mode}</label>
+                    <div className="segmented" role="group" aria-label={s.mode}>
+                      <button type="button" data-active={mode === "perProject"} onClick={() => setMode("perProject")}>
+                        {s.modePerProject}
+                      </button>
+                      <button type="button" data-active={mode === "perEntry"} onClick={() => setMode("perEntry")}>
+                        {s.modePerEntry}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button type="button" className="btn btn-secondary" onClick={generate} disabled={!clientId}>
+                    {generated ? s.regenerate : s.generate}
+                  </button>
+                  {!clientId && <p className="field-hint">{s.clientRequired}</p>}
+                  {generated && (
+                    <p className="field-hint">
+                      {includedIds.length > 0 ? s.includedCount(includedIds.length) : s.noUnbilled}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             {items.length === 0 ? (

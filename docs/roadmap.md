@@ -86,14 +86,19 @@
 
 **Goal:** Create an invoice from scratch, independent of time tracking.
 
-- [ ] "Nová faktura" available from: global Faktury tab, client detail, project detail
-- [ ] If launched from client/project, pre-fills client info (and project reference if applicable)
-- [ ] If launched from global tab, requires picking a client first
-- [ ] Manual line items: description, quantity, unit price (supports both "hours × rate" and flat amounts)
-- [ ] Auto-numbering: configurable format (e.g. `2026-001`), auto-incremented, editable per invoice if user wants to override
-- [ ] Variabilní symbol: auto-suggested (e.g. same as invoice number digits), editable
-- [ ] Due date: configurable default (e.g. +14 days), editable per invoice
-- [ ] Invoice status: draft / vystavena / zaplacena (manually toggled, or "zaplacena" auto-suggested once due date passes — just a visual nudge, not automated payment tracking)
+- [x] "Nová faktura" available from: global Faktury tab, client detail, project detail
+- [x] If launched from client/project, pre-fills client info (and project reference if applicable)
+- [x] If launched from global tab, requires picking a client first
+- [x] Manual line items: description, quantity, unit price (supports both "hours × rate" and flat amounts)
+- [x] Auto-numbering: configurable format (e.g. `2026-001`), auto-incremented, editable per invoice if user wants to override
+- [x] Variabilní symbol: auto-suggested (e.g. same as invoice number digits), editable
+- [x] Due date: configurable default (e.g. +14 days), editable per invoice
+- [x] Invoice status: draft / vystavena / zaplacena (manually toggled; overdue shown as a visual nudge via the "Po splatnosti" badge — not automated payment tracking)
+
+> Manual creation shares the Phase 4 invoice editor. The "generate from time
+> entries" step is now an optional, collapsible helper ("Předvyplnit z výkazů
+> práce"); the editor starts with an empty line item so a from-scratch invoice
+> needs no time data at all.
 
 **Data fields:** id, invoiceNumber, clientId, projectId (nullable), issueDate, dueDate, variabilniSymbol, items[] (description, qty, unitPrice), status, createdFromTimeEntries (bool)
 

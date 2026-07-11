@@ -1372,6 +1372,34 @@ a.list-row:hover {
   color: var(--text);
 }
 
+/* Volitelný pomocník: předvyplnit položky z výkazů práce */
+.work-source {
+  margin-bottom: var(--space-4);
+}
+.work-source-toggle {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+}
+.work-source-toggle:hover {
+  color: var(--text);
+}
+.work-source-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-subtle);
+}
+
 /* Editor položek */
 .invoice-items {
   display: flex;
