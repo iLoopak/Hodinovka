@@ -14,7 +14,8 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { MetricCard } from "@/components/MetricCard";
 import { EmptyState } from "@/components/EmptyState";
-import { IconArrowLeft, IconEdit, IconTrash, IconFolder, IconWork, IconInvoices } from "@/components/icons";
+import { TimeEntryList } from "@/components/TimeEntryList";
+import { IconArrowLeft, IconEdit, IconTrash, IconFolder, IconWork, IconInvoices, IconPlus } from "@/components/icons";
 
 const s = strings.projekty;
 
@@ -123,8 +124,26 @@ function ProjectDetail() {
       </section>
 
       <section className="panel">
-        <SectionHeader title={s.timeEntries} />
-        <EmptyState icon={<IconWork />} title={strings.klienti.noWork} description={strings.vykazy.upcomingHint} />
+        <SectionHeader
+          title={s.timeEntries}
+          action={{ href: `/vykazy/novy/?projectId=${id}&clientId=${project.clientId}`, label: <><IconPlus size={15} /> {strings.vykazy.add}</> }}
+        />
+        {timeEntries && timeEntries.length > 0 && client ? (
+          <TimeEntryList
+            entries={[...timeEntries].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 10)}
+            clients={[client]}
+            projects={[project]}
+            showClient={false}
+          />
+        ) : (
+          <EmptyState
+            icon={<IconWork />}
+            title={strings.klienti.noWork}
+            description={strings.vykazy.emptyHint}
+            actionLabel={strings.vykazy.add}
+            actionHref={`/vykazy/novy/?projectId=${id}&clientId=${project.clientId}`}
+          />
+        )}
       </section>
 
       <section className="panel">

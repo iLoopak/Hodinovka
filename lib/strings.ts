@@ -42,6 +42,7 @@ export const strings = {
     newInvoiceDesc: "Vystavit doklad",
     recentWork: "Poslední práce",
     recentWorkEmpty: "Zatím žádná zapsaná práce.",
+    viewAll: "Zobrazit vše",
     attention: "Vyžaduje pozornost",
     attentionEmpty: "Žádné faktury po splatnosti ani před splatností.",
     summary: "Souhrn",
@@ -147,12 +148,57 @@ export const strings = {
 
   vykazy: {
     title: "Výkazy práce",
-    empty: "Zatím tu nejsou žádné záznamy práce.",
-    emptyHint: "Zaznamenejte odpracované hodiny k projektu nebo klientovi.",
     add: "Nový záznam",
-    upcomingTitle: "Výkazy práce budou brzy",
-    upcomingHint:
-      "Zápis odpracovaného času připravujeme v další fázi. Zatím si můžete založit klienty a projekty.",
+    newTitle: "Nový záznam práce",
+    editTitle: "Upravit záznam",
+    notFound: "Záznam nenalezen.",
+
+    empty: "Zatím tu nejsou žádné záznamy práce.",
+    emptyHint: "Zapište odpracované hodiny ke klientovi nebo projektu.",
+    emptyMonth: "V tomto měsíci nemáte žádné záznamy.",
+    emptyMonthHint: "Zvolte jiný měsíc nebo zapište nový záznam.",
+
+    // Filtry
+    allClients: "Všichni klienti",
+    allProjects: "Všechny projekty",
+    month: "Měsíc",
+
+    // Souhrn
+    summaryHours: "Odpracováno",
+    summaryUnbilled: "Nevyfakturováno",
+    billedBadge: "Vyfakturováno",
+    unbilledBadge: "Nevyfakturováno",
+    noProjectLabel: "Bez projektu",
+
+    // Stopky
+    timer: {
+      title: "Stopky",
+      descriptionPlaceholder: "Na čem pracujete? (nepovinné)",
+      start: "Spustit",
+      running: "Měřím čas",
+      stop: "Zastavit a uložit",
+      stopShort: "Zastavit",
+      discard: "Zahodit",
+      discardConfirm: "Zahodit měření bez uložení?",
+    },
+
+    // Formulář
+    fields: {
+      client: "Klient",
+      selectClient: "Vyberte klienta…",
+      project: "Projekt",
+      noProject: "— bez projektu —",
+      date: "Datum",
+      duration: "Doba práce",
+      hours: "hodin",
+      minutes: "minut",
+      description: "Popis práce",
+    },
+    clientRequired: "Vyberte klienta.",
+    durationRequired: "Zadejte dobu práce.",
+    deleteConfirm: "Opravdu smazat tento záznam?",
+    deleteBilledWarn:
+      "Tento záznam je už navázaný na fakturu. Smazáním se vazba ztratí.",
   },
 
   faktury: {

@@ -13,6 +13,7 @@ import { computeUnbilled } from "@/lib/metrics";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Monogram } from "@/components/Monogram";
 import { ListRow } from "@/components/ListRow";
+import { TimeEntryList } from "@/components/TimeEntryList";
 import { StatusBadge } from "@/components/StatusBadge";
 import { MetricCard } from "@/components/MetricCard";
 import { EmptyState } from "@/components/EmptyState";
@@ -142,10 +143,28 @@ function ClientDetail() {
         )}
       </section>
 
-      {/* Výkazy práce — funkce přijde ve Fázi 3 */}
+      {/* Výkazy práce */}
       <section className="panel">
-        <SectionHeader title={s.work} />
-        <EmptyState icon={<IconWork />} title={s.noWork} description={strings.vykazy.upcomingHint} />
+        <SectionHeader
+          title={s.work}
+          action={{ href: `/vykazy/novy/?clientId=${id}`, label: <><IconPlus size={15} /> {strings.vykazy.add}</> }}
+        />
+        {timeEntries && timeEntries.length > 0 ? (
+          <TimeEntryList
+            entries={[...timeEntries].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 10)}
+            clients={[client]}
+            projects={projects ?? []}
+            showClient={false}
+          />
+        ) : (
+          <EmptyState
+            icon={<IconWork />}
+            title={s.noWork}
+            description={strings.vykazy.emptyHint}
+            actionLabel={strings.vykazy.add}
+            actionHref={`/vykazy/novy/?clientId=${id}`}
+          />
+        )}
       </section>
 
       {/* Faktury — funkce přijde ve Fázi 4/5 */}

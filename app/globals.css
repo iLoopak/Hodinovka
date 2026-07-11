@@ -1019,6 +1019,252 @@ a.list-row:hover {
   outline-offset: 1px;
 }
 
+/* Doba práce — hodiny + minuty */
+.duration-inputs {
+  display: flex;
+  gap: var(--space-3);
+}
+.duration-part {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+}
+.duration-part input {
+  width: 100%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.duration-part span {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   Stopky (start/stop)
+   ============================================================ */
+
+.timer-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.timer-idle-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  color: var(--text-muted);
+}
+.timer-idle-icon {
+  display: inline-flex;
+  color: var(--accent);
+}
+.timer-idle-title {
+  font-weight: 620;
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.timer-idle-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.timer-idle-fields input {
+  grid-column: 1 / -1;
+}
+.timer-idle-fields select,
+.timer-idle-fields input {
+  padding: 11px 13px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--text-md);
+  font-family: inherit;
+  min-height: 44px;
+  width: 100%;
+}
+.timer-idle-fields select:focus,
+.timer-idle-fields input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.timer-idle-fields .btn {
+  grid-column: 1 / -1;
+}
+@media (min-width: 560px) {
+  .timer-idle-fields .btn {
+    grid-column: auto;
+  }
+}
+
+.timer-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  flex-shrink: 0;
+  animation: timer-pulse 1.6s ease-in-out infinite;
+}
+@keyframes timer-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* --- Globální lišta běžících stopek (na všech stránkách) --- */
+.global-timer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  padding-top: calc(var(--space-2) + env(safe-area-inset-top));
+  background: color-mix(in srgb, var(--accent-soft) 88%, var(--surface));
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  box-shadow: var(--shadow-sm);
+}
+.gt-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+  color: var(--text);
+}
+.gt-time {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.gt-context {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gt-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+.gt-actions .btn {
+  min-height: 40px;
+  padding: 0 var(--space-4);
+}
+.gt-discard {
+  width: 40px;
+  height: 40px;
+}
+.gt-discard svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (min-width: 860px) {
+  .global-timer {
+    left: var(--sidebar-width);
+  }
+}
+
+/* Když stopky běží, posuneme obsah pod lištu. */
+:root[data-timer="running"] .app-main {
+  padding-top: calc(var(--space-5) + 56px + env(safe-area-inset-top));
+}
+@media (min-width: 860px) {
+  :root[data-timer="running"] .app-main {
+    padding-top: calc(var(--space-7) + 52px);
+  }
+}
+
+/* ============================================================
+   Výkazy práce — časová osa
+   ============================================================ */
+
+.day-group {
+  margin-bottom: var(--space-5);
+}
+.day-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0 var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.day-head span:first-child {
+  text-transform: capitalize;
+}
+
+/* Zvýrazněná doba v řádku záznamu */
+.dur {
+  flex-shrink: 0;
+  min-width: 58px;
+  font-weight: 680;
+  font-size: var(--text-md);
+  color: var(--text);
+}
+
+/* Souhrn (odpracováno / nevyfakturováno) */
+.summary-row {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+.summary-row .stat {
+  flex: 1;
+}
+
+/* Řádek filtrů */
+.filters {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+.filters .field {
+  flex: 1;
+  min-width: 140px;
+  gap: 4px;
+}
+.filters .field > label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Měsíční přepínač */
+.month-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.month-switch .ms-label {
+  font-weight: 620;
+  text-transform: capitalize;
+}
+
 /* ============================================================
    Vyhledávání
    ============================================================ */

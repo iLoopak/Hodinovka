@@ -128,3 +128,15 @@ export const IconArrowRight = (p: IconProps) => (
     <path d="M5 12h14m-7-7 7 7-7 7" />
   </Icon>
 );
+
+export const IconPlay = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M7 4.5v15l12-7.5-12-7.5Z" fill="currentColor" stroke="none" />
+  </Icon>
+);
+
+export const IconStop = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" stroke="none" />
+  </Icon>
+);
