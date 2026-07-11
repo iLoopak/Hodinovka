@@ -44,13 +44,13 @@ docs/           # roadmap.md + faktura-pdf-layout.md
 
 Postup vývoje po fázích viz [`docs/roadmap.md`](docs/roadmap.md).
 
-**Stav:** Přidána **QR Platba** na PDF faktury — česká QR platba dle standardu
-SPD; IBAN se bere z profilu, nebo se odvodí z čísla účtu. Dále **podpora DPH
-pro plátce** (položky se sazbou 21/12/0 %, rozpis a rekapitulace DPH na PDF
-i v detailu; ceny se zadávají bez DPH). Hotové i Fáze 1–8: Klienti + ARES,
-Projekty, Výkazy práce (vč. stopek), faktury z výkazů i ruční, firemní profil,
-PDF export + sdílení, záloha/obnova dat. Zbývá jen volitelná Fáze 9
-(Capacitor APK).
+**Stav:** Přidán **export do ISDOC** (český národní standard pro elektronickou
+fakturaci, XML `.isdoc` — naimportuje ho ABRA, Pohoda, Money…); generovaný
+soubor je ověřen proti oficiálnímu XSD. Dále **QR Platba** na PDF (standard
+SPD) a **podpora DPH pro plátce** (sazby 21/12/0 %, rozpis a rekapitulace DPH;
+ceny bez DPH). Hotové i Fáze 1–8: Klienti + ARES, Projekty, Výkazy práce (vč.
+stopek), faktury z výkazů i ruční, firemní profil, PDF export + sdílení,
+záloha/obnova dat. Zbývá jen volitelná Fáze 9 (Capacitor APK).
 
 > ARES posílá `Access-Control-Allow-Origin: *`, takže se volá přímo
 > z prohlížeče (`lib/ares.ts`) — žádný proxy/backend není potřeba a lookup

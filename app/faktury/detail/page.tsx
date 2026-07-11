@@ -12,6 +12,7 @@ import { invoiceNet, invoiceVat, invoiceGross, vatRecap, itemVatRate, invoicePay
 import { invoiceStatusView, invoiceBadge } from "@/lib/status";
 import { PROFILE_ID } from "@/lib/profile";
 import { resolveIban, buildSpd, spdMessage } from "@/lib/payment";
+import { buildIsdoc } from "@/lib/isdoc";
 import { buildInvoiceData, pdfSignature } from "@/lib/pdf/invoiceData";
 import { generateInvoicePdf, generateQrMatrix, blobToDataUrl } from "@/lib/pdf/generate";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -126,13 +127,19 @@ function InvoiceDetail() {
     return blob;
   }
 
-  function downloadBlob(blob: Blob) {
+  function downloadBlob(blob: Blob, name: string = fileName) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = fileName;
+    a.download = name;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function handleIsdoc() {
+    const xml = buildIsdoc(invoice!, client, profile);
+    const blob = new Blob([xml], { type: "application/xml" });
+    downloadBlob(blob, `faktura-${invoiceNumber.replace(/[^\w.-]+/g, "-")}.isdoc`);
   }
 
   async function handleDownload() {
@@ -285,6 +292,14 @@ function InvoiceDetail() {
             disabled={pdfBusy}
           >
             <IconDownload /> {s.pdfDownload}
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleIsdoc}
+            disabled={pdfBusy}
+          >
+            <IconDownload /> {s.isdocDownload}
           </button>
           <button
             type="button"

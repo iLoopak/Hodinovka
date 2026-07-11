@@ -278,6 +278,7 @@ export const strings = {
     // Export PDF
     exportTitle: "Export",
     pdfDownload: "Stáhnout PDF",
+    isdocDownload: "Stáhnout ISDOC",
     pdfShare: "Sdílet / Odeslat e-mailem",
     pdfGenerating: "Generuji PDF…",
     pdfManualAttach:
