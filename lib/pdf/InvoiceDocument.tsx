@@ -30,14 +30,16 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
   logo: { height: 48 },
   logoSmall: { height: 32 },
-  title: { fontSize: 24, fontWeight: 700, letterSpacing: 1 },
-  titleNum: { fontSize: 11, color: MUTED, marginTop: 2 },
+  // Bez letterSpacing — v @react-pdf rozbíjí výpočet výšky řádku a číslo
+  // faktury se pak překrývá s nadpisem FAKTURA.
+  title: { fontSize: 24, fontWeight: 700, lineHeight: 1.15 },
+  titleNum: { fontSize: 11, color: MUTED, marginTop: 3 },
   accentBar: { height: 3, marginTop: 14, borderRadius: 2 },
   thinLine: { height: 1, marginTop: 14, backgroundColor: LINE },
 
   parties: { flexDirection: "row", marginTop: 22 },
   party: { flex: 1, paddingRight: 20 },
-  partyLabel: { fontSize: 8, fontWeight: 700, letterSpacing: 0.6, marginBottom: 4 },
+  partyLabel: { fontSize: 8, fontWeight: 700, marginBottom: 4 },
   partyName: { fontSize: 11, fontWeight: 600 },
   muted: { color: MUTED },
 
