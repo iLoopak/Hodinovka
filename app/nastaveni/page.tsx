@@ -5,6 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { getDb, type BusinessProfile } from "@/lib/db";
 import { fetchAresByIco, AresError } from "@/lib/ares";
 import { exportBackup, importBackup, BackupError } from "@/lib/backup";
+import { addressLines } from "@/lib/address";
 import { strings } from "@/lib/strings";
 import {
   PROFILE_ID,
@@ -42,7 +43,10 @@ export default function NastaveniPage() {
   );
 
   const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
+  const [street, setStreet] = useState("");
+  const [streetNumber, setStreetNumber] = useState("");
+  const [city, setCity] = useState("");
+  const [zip, setZip] = useState("");
   const [ico, setIco] = useState("");
   const [dic, setDic] = useState("");
   const [isVatPayer, setIsVatPayer] = useState(false);
@@ -70,7 +74,10 @@ export default function NastaveniPage() {
     didInit.current = true;
     if (profile) {
       setName(profile.name ?? "");
-      setAddress(profile.address ?? "");
+      setStreet(profile.street ?? "");
+      setStreetNumber(profile.streetNumber ?? "");
+      setCity(profile.city ?? "");
+      setZip(profile.zip ?? "");
       setIco(profile.ico ?? "");
       setDic(profile.dic ?? "");
       setIsVatPayer(profile.isVatPayer ?? false);
@@ -96,12 +103,10 @@ export default function NastaveniPage() {
       if (r.name) setName(r.name);
       if (r.dic) setDic(r.dic);
       if (r.ico) setIco(r.ico);
-      // Adresu poskládáme do víceřádkového pole: ulice s číslem, PSČ a obec.
-      const addrLines = [
-        [r.street, r.streetNumber].filter(Boolean).join(" "),
-        [r.zip, r.city].filter(Boolean).join(" "),
-      ].filter(Boolean);
-      if (addrLines.length) setAddress(addrLines.join("\n"));
+      if (r.street) setStreet(r.street);
+      if (r.streetNumber) setStreetNumber(r.streetNumber);
+      if (r.city) setCity(r.city);
+      if (r.zip) setZip(r.zip);
     } catch (err) {
       setAresError(err instanceof AresError ? err.message : "Načtení z ARES selhalo.");
     } finally {
@@ -127,7 +132,10 @@ export default function NastaveniPage() {
     setSaving(true);
     const record: Omit<BusinessProfile, "id"> = {
       name: name.trim() || undefined,
-      address: address.trim() || undefined,
+      street: street.trim() || undefined,
+      streetNumber: streetNumber.trim() || undefined,
+      city: city.trim() || undefined,
+      zip: zip.trim() || undefined,
       ico: ico.trim() || undefined,
       dic: dic.trim() || undefined,
       isVatPayer,
@@ -214,15 +222,39 @@ export default function NastaveniPage() {
               <input id="name" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
 
-            <div className="field">
-              <label htmlFor="address">{s.fields.address}</label>
-              <textarea
-                id="address"
-                rows={3}
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-              <p className="field-hint">{s.fields.addressHint}</p>
+            <div className="fieldset">
+              <div className="fieldset-legend">{s.fields.address}</div>
+              <div className="field-grid grow-first">
+                <div className="field">
+                  <label htmlFor="street">{s.fields.street}</label>
+                  <input id="street" value={street} onChange={(e) => setStreet(e.target.value)} />
+                </div>
+                <div className="field">
+                  <label htmlFor="streetNumber">{s.fields.streetNumber}</label>
+                  <input
+                    id="streetNumber"
+                    value={streetNumber}
+                    onChange={(e) => setStreetNumber(e.target.value)}
+                    placeholder="778/3a"
+                  />
+                </div>
+              </div>
+              <div className="field-grid grow-first">
+                <div className="field">
+                  <label htmlFor="city">{s.fields.city}</label>
+                  <input id="city" value={city} onChange={(e) => setCity(e.target.value)} />
+                </div>
+                <div className="field">
+                  <label htmlFor="zip">{s.fields.zip}</label>
+                  <input
+                    id="zip"
+                    inputMode="numeric"
+                    value={zip}
+                    onChange={(e) => setZip(e.target.value)}
+                    placeholder="140 00"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="field">
@@ -366,7 +398,7 @@ export default function NastaveniPage() {
             </div>
             <InvoiceHeaderPreview
               name={name}
-              address={address}
+              lines={addressLines({ street, streetNumber, city, zip })}
               ico={ico}
               accent={accentColor}
               template={templateId}
@@ -490,20 +522,19 @@ function TemplateThumb({ template, accent }: { template: TemplateId; accent: str
 
 function InvoiceHeaderPreview({
   name,
-  address,
+  lines,
   ico,
   accent,
   template,
   logoUrl,
 }: {
   name: string;
-  address: string;
+  lines: string[];
   ico: string;
   accent: string;
   template: TemplateId;
   logoUrl: string | null;
 }) {
-  const lines = address.split("\n").map((l) => l.trim()).filter(Boolean);
   return (
     <div
       className="invoice-preview"

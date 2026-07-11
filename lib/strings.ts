@@ -346,7 +346,10 @@ export const strings = {
     fields: {
       name: "Název / jméno",
       address: "Adresa",
-      addressHint: "Ulice a číslo, PSČ a město — každé na svůj řádek.",
+      street: "Ulice",
+      streetNumber: "Číslo popisné/orientační",
+      city: "Město / obec",
+      zip: "PSČ",
       ico: "IČO",
       dic: "DIČ",
       vatPayer: "Jsem plátce DPH",

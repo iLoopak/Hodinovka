@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from "dexie";
+import { parseAddress } from "@/lib/address";
 
 /**
  * Datový model aplikace — 100 % lokálně v IndexedDB (přes Dexie.js).
@@ -87,7 +88,11 @@ export interface Invoice {
 export interface BusinessProfile {
   id: string; // vždy "default"
   name?: string;
-  address?: string;
+  // Adresa dodavatele rozdělená na pole (kvůli fakturám a ISDOC exportu).
+  street?: string;
+  streetNumber?: string;
+  city?: string;
+  zip?: string;
   ico?: string;
   dic?: string;
   bankAccount?: string;
@@ -161,6 +166,26 @@ export class HodinovkaDB extends Dexie {
     this.version(3).stores({
       activeTimer: "id",
     });
+
+    // v4: adresa dodavatele rozdělena na ulici/číslo/obec/PSČ (kvůli ISDOC).
+    // Indexy se nemění; migrace jen převede staré volné pole `address`.
+    this.version(4)
+      .stores({ businessProfile: "id" })
+      .upgrade(async (tx) => {
+        await tx
+          .table("businessProfile")
+          .toCollection()
+          .modify((p: BusinessProfile & { address?: string }) => {
+            if (p.address && !p.street) {
+              const a = parseAddress(p.address);
+              p.street = a.street;
+              p.streetNumber = a.streetNumber;
+              p.city = a.city;
+              p.zip = a.zip;
+            }
+            delete p.address;
+          });
+      });
   }
 }
 
