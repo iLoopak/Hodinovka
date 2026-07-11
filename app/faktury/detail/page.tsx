@@ -8,11 +8,12 @@ import { getDb, type InvoiceStatus } from "@/lib/db";
 import { strings } from "@/lib/strings";
 import { formatMoney, formatDate } from "@/lib/format";
 import { todayIso } from "@/lib/time";
-import { invoiceNet, invoiceVat, invoiceGross, vatRecap, itemVatRate } from "@/lib/vat";
+import { invoiceNet, invoiceVat, invoiceGross, vatRecap, itemVatRate, invoicePayable } from "@/lib/vat";
 import { invoiceStatusView, invoiceBadge } from "@/lib/status";
 import { PROFILE_ID } from "@/lib/profile";
+import { resolveIban, buildSpd, spdMessage } from "@/lib/payment";
 import { buildInvoiceData, pdfSignature } from "@/lib/pdf/invoiceData";
-import { generateInvoicePdf, blobToDataUrl } from "@/lib/pdf/generate";
+import { generateInvoicePdf, generateQrDataUrl, blobToDataUrl } from "@/lib/pdf/generate";
 import { SectionHeader } from "@/components/SectionHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { IconArrowLeft, IconInvoices, IconTrash, IconCheck, IconDownload, IconShare } from "@/components/icons";
@@ -102,7 +103,24 @@ function InvoiceDetail() {
       pr?.logo ? blobToDataUrl(pr.logo) : Promise.resolve(undefined),
       pr?.signature ? blobToDataUrl(pr.signature) : Promise.resolve(undefined),
     ]);
-    const data = buildInvoiceData(inv, cl, pr, { logoUrl, signatureUrl });
+
+    // QR Platba — jen když známe IBAN (vyplněný nebo odvozený z čísla účtu)
+    // a je co platit.
+    let qrUrl: string | undefined;
+    const payable = invoicePayable(inv);
+    const iban = resolveIban(pr);
+    if (iban && payable > 0) {
+      const spd = buildSpd({
+        iban,
+        amount: payable,
+        currency: cl?.currency ?? "CZK",
+        vs: inv.variabilniSymbol,
+        message: spdMessage(inv.invoiceNumber),
+      });
+      qrUrl = await generateQrDataUrl(spd);
+    }
+
+    const data = buildInvoiceData(inv, cl, pr, { logoUrl, signatureUrl, qrUrl });
     const blob = await generateInvoicePdf(data);
     await db.invoices.update(id, { pdfBlob: blob, pdfSignature: signature });
     return blob;

@@ -59,6 +59,7 @@ export interface InvoiceData {
 
   logoUrl?: string; // data URL
   signatureUrl?: string; // data URL
+  qrUrl?: string; // QR Platba (SPD) jako PNG data URL
   accentColor: string;
   templateId: TemplateId;
 }
@@ -75,7 +76,7 @@ export function buildInvoiceData(
   invoice: Invoice,
   client: Client | null | undefined,
   profile: BusinessProfile | null | undefined,
-  images: { logoUrl?: string; signatureUrl?: string } = {}
+  images: { logoUrl?: string; signatureUrl?: string; qrUrl?: string } = {}
 ): InvoiceData {
   const items: PdfItem[] = invoice.items.map((it) => ({
     description: it.description,
@@ -126,6 +127,7 @@ export function buildInvoiceData(
 
     logoUrl: images.logoUrl,
     signatureUrl: images.signatureUrl,
+    qrUrl: images.qrUrl,
     accentColor: profile?.accentColor ?? DEFAULT_ACCENT,
     templateId: profile?.templateId ?? "classic-left",
   };

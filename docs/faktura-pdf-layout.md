@@ -26,7 +26,7 @@ Nepovinné, ale běžné a uživatelsky očekávané:
 - Logo dodavatele
 - Razítko/podpis (obraz)
 - Poznámka/patička (např. "Děkuji za spolupráci")
-- QR platba (nice-to-have pro později — česká QR platba dle standardu SPD/CZ, ne v MVP)
+- QR platba ✅ hotovo — česká QR Platba dle standardu SPD (`SPD*1.0*ACC:*AM:*CC:*X-VS:*MSG:`); IBAN se bere z profilu, nebo se odvodí z čísla účtu. QR se vykreslí vlevo dole na PDF (jen když je znám IBAN a je co platit).
 
 ---
 

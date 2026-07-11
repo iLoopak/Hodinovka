@@ -31,6 +31,13 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Blob> {
   return pdf(<InvoiceDocument data={data} />).toBlob();
 }
 
+/** Text (SPD řetězec) → PNG data URL s QR kódem. Knihovna se načte dynamicky. */
+export async function generateQrDataUrl(text: string): Promise<string> {
+  const mod = await import("qrcode");
+  const QRCode = (mod as unknown as { default?: typeof mod }).default ?? mod;
+  return QRCode.toDataURL(text, { margin: 1, width: 256, errorCorrectionLevel: "M" });
+}
+
 /** Blob (logo/podpis z IndexedDB) → data URL pro <Image src>. */
 export function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {

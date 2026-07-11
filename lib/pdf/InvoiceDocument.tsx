@@ -113,7 +113,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-end",
   },
-  noteBlock: { maxWidth: 300 },
+  footerLeft: { flexDirection: "row", gap: 16, alignItems: "flex-start" },
+  qrBlock: { alignItems: "center", width: 78 },
+  qr: { width: 78, height: 78 },
+  qrLabel: { fontSize: 7, fontWeight: 700, color: MUTED, marginTop: 3, letterSpacing: 0.3 },
+  noteBlock: { maxWidth: 260 },
   noteLabel: { fontSize: 8, fontWeight: 700, color: MUTED, marginBottom: 2 },
   signature: { height: 56 },
 });
@@ -317,12 +321,22 @@ function Totals({ data }: { data: InvoiceData }) {
 }
 
 function Footer({ data }: { data: InvoiceData }) {
-  if (!data.footerNote && !data.signatureUrl) return null;
+  if (!data.footerNote && !data.signatureUrl && !data.qrUrl) return null;
   return (
     <View style={styles.footer}>
-      <View style={styles.noteBlock}>
-        {data.footerNote ? <Text style={styles.noteLabel}>{P.note}</Text> : null}
-        {data.footerNote ? <Text style={styles.muted}>{data.footerNote}</Text> : null}
+      <View style={styles.footerLeft}>
+        {data.qrUrl ? (
+          <View style={styles.qrBlock}>
+            <Image src={data.qrUrl} style={styles.qr} />
+            <Text style={styles.qrLabel}>{P.qrPayment}</Text>
+          </View>
+        ) : null}
+        {data.footerNote ? (
+          <View style={styles.noteBlock}>
+            <Text style={styles.noteLabel}>{P.note}</Text>
+            <Text style={styles.muted}>{data.footerNote}</Text>
+          </View>
+        ) : null}
       </View>
       {data.signatureUrl ? <Image src={data.signatureUrl} style={styles.signature} /> : <View />}
     </View>
