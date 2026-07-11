@@ -118,7 +118,8 @@ function InvoiceDetail() {
     setPdfMsg(null);
     try {
       downloadBlob(await getOrBuildPdf());
-    } catch {
+    } catch (err) {
+      console.error("PDF export selhal:", err);
       setPdfMsg(s.pdfError);
     } finally {
       setPdfBusy(false);
@@ -143,7 +144,10 @@ function InvoiceDetail() {
         setPdfMsg(s.pdfManualAttach);
       }
     } catch (err) {
-      if ((err as Error)?.name !== "AbortError") setPdfMsg(s.pdfError);
+      if ((err as Error)?.name !== "AbortError") {
+        console.error("PDF sdílení selhalo:", err);
+        setPdfMsg(s.pdfError);
+      }
     } finally {
       setPdfBusy(false);
     }
