@@ -5,6 +5,7 @@
 import type { Invoice, Client, BusinessProfile } from "@/lib/db";
 import { formatDate } from "@/lib/format";
 import { DEFAULT_ACCENT, type TemplateId } from "@/lib/profile";
+import { addressLines } from "@/lib/address";
 import {
   invoiceNet,
   invoiceVat,
@@ -107,7 +108,7 @@ export function buildInvoiceData(
 
     supplier: {
       name: profile?.name ?? "",
-      address: profile?.address ?? "",
+      address: addressLines(profile ?? {}).join("\n"),
       ico: profile?.ico ?? "",
       dic: profile?.dic,
       bankAccount: profile?.bankAccount,
@@ -173,7 +174,7 @@ export function pdfSignature(
     pr: profile
       ? {
           n: profile.name ?? "",
-          a: profile.address ?? "",
+          a: addressLines(profile).join("|"),
           ico: profile.ico ?? "",
           dic: profile.dic ?? "",
           ba: profile.bankAccount ?? "",

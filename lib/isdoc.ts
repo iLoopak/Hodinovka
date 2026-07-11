@@ -54,34 +54,6 @@ interface Addr {
   zip: string;
 }
 
-/** Rozdělí víceřádkovou adresu dodavatele na ulici/číslo/PSČ/obec (best-effort). */
-function parseSupplierAddress(address: string | undefined): Addr {
-  const lines = (address ?? "")
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean);
-  const out: Addr = { street: "", building: "", city: "", zip: "" };
-  if (lines.length === 0) return out;
-
-  const zipIdx = lines.findIndex((l) => /\d{3}\s?\d{2}/.test(l));
-  if (zipIdx >= 0) {
-    const zm = lines[zipIdx].match(/(\d{3})\s?(\d{2})/);
-    out.zip = zm ? zm[1] + zm[2] : "";
-    out.city = lines[zipIdx].replace(/\d{3}\s?\d{2}/, "").trim().replace(/^,\s*/, "");
-    const streetLine = lines[zipIdx > 0 ? zipIdx - 1 : 0] ?? "";
-    const bm = streetLine.match(/^(.*?)\s+(\d+[\d/a-zA-Z]*)\s*$/);
-    if (bm) {
-      out.street = bm[1].trim();
-      out.building = bm[2].trim();
-    } else {
-      out.street = streetLine;
-    }
-  } else {
-    out.street = lines.join(", ");
-  }
-  return out;
-}
-
 function partyXml(
   role: "AccountingSupplierParty" | "AccountingCustomerParty",
   p: { name: string; ico: string; dic?: string; addr: Addr; email?: string; phone?: string }
@@ -219,7 +191,12 @@ export function buildIsdoc(
     name: profile?.name ?? "",
     ico: profile?.ico ?? "",
     dic: withVat ? profile?.dic : undefined,
-    addr: parseSupplierAddress(profile?.address),
+    addr: {
+      street: profile?.street ?? "",
+      building: profile?.streetNumber ?? "",
+      city: profile?.city ?? "",
+      zip: (profile?.zip ?? "").replace(/\s/g, ""),
+    },
     email: undefined,
     phone: undefined,
   });
