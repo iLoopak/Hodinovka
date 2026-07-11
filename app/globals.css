@@ -1503,3 +1503,339 @@ a.list-row:hover {
   align-self: center;
   font-weight: 620;
 }
+
+/* ============================================================
+   Nastavení: firemní profil (Fáze 6)
+   ============================================================ */
+
+.panel-note {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
+.btn-sm {
+  min-height: 38px;
+  padding: 0 var(--space-4);
+  font-size: var(--text-sm);
+}
+
+/* Zaškrtávací pole */
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  cursor: pointer;
+  font-weight: 550;
+}
+.checkbox-field input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* Nahrávání obrázků (logo, podpis) */
+.image-upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+.image-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.image-field-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+.image-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96px;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-subtle);
+  color: var(--text-muted);
+}
+.image-preview[data-empty="true"] {
+  border-style: dashed;
+}
+.image-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.image-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+.image-actions .btn {
+  flex: 1;
+}
+
+/* Barva zvýraznění */
+.accent-field {
+  display: flex;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+.accent-field input[type="color"] {
+  width: 52px;
+  min-height: 44px;
+  padding: 4px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+}
+.accent-hex {
+  flex: 1;
+  text-transform: uppercase;
+}
+
+/* Přepínač šablon */
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+.template-option {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+.template-option:hover {
+  background: var(--surface-hover);
+}
+.template-option[data-active="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+.template-option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Miniatura rozvržení */
+.template-thumb {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  height: 56px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.template-thumb .tt-bar {
+  height: 5px;
+  border-radius: 2px;
+  background: var(--preview-accent);
+}
+.template-thumb[data-template="minimal"] .tt-bar {
+  visibility: hidden;
+}
+.template-thumb .tt-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.template-thumb[data-template="classic-right"] .tt-head {
+  flex-direction: row-reverse;
+}
+.template-thumb .tt-logo {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--preview-accent) 30%, var(--surface));
+  flex-shrink: 0;
+}
+.template-thumb .tt-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+.template-thumb[data-template="classic-right"] .tt-lines {
+  align-items: flex-end;
+}
+.template-thumb .tt-lines span {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-strong);
+}
+.template-thumb .tt-lines span:first-child {
+  width: 70%;
+}
+.template-thumb .tt-lines span:last-child {
+  width: 45%;
+}
+.template-thumb .tt-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: auto;
+}
+.template-thumb .tt-rows span {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border);
+}
+.template-thumb .tt-rows span:first-child {
+  background: var(--preview-accent);
+}
+.template-thumb[data-template="minimal"] .tt-rows span:first-child {
+  background: var(--border-strong);
+}
+
+/* Náhled hlavičky faktury */
+.invoice-preview {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  color: #1a1c1a;
+}
+.invoice-preview .ip-bar {
+  height: 8px;
+  background: var(--preview-accent);
+}
+.invoice-preview[data-template="minimal"] .ip-bar {
+  display: none;
+}
+.invoice-preview .ip-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-4) 0;
+}
+.invoice-preview[data-template="classic-right"] .ip-head {
+  flex-direction: row-reverse;
+}
+.invoice-preview .ip-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: #f3f3ef;
+  color: #9a9a92;
+  overflow: hidden;
+}
+.invoice-preview .ip-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.invoice-preview[data-template="minimal"] .ip-logo {
+  width: 44px;
+  height: 44px;
+}
+.invoice-preview .ip-supplier {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+.invoice-preview[data-template="classic-left"] .ip-supplier {
+  margin-left: auto;
+  text-align: right;
+}
+.invoice-preview .ip-eyebrow {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--preview-accent);
+  margin-bottom: 2px;
+}
+.invoice-preview .ip-supplier strong {
+  font-size: var(--text-md);
+  color: #1a1c1a;
+}
+.invoice-preview .ip-supplier span:not(.ip-eyebrow) {
+  color: #55564f;
+}
+.invoice-preview .ip-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-4) var(--space-3);
+}
+.invoice-preview .ip-faktura {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--preview-accent);
+}
+.invoice-preview[data-template="minimal"] .ip-faktura {
+  color: #1a1c1a;
+}
+.invoice-preview .ip-num {
+  color: #55564f;
+  font-size: var(--text-sm);
+}
+.invoice-preview .ip-table {
+  padding: 0 var(--space-4) var(--space-4);
+}
+.invoice-preview .ip-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px var(--space-3);
+  font-size: var(--text-sm);
+}
+.invoice-preview .ip-row-head {
+  color: #fff;
+  font-weight: 650;
+  background: var(--preview-accent);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+.invoice-preview[data-template="minimal"] .ip-row-head {
+  color: #1a1c1a;
+  background: transparent;
+  border-bottom: 2px solid var(--preview-accent);
+  border-radius: 0;
+}
+.invoice-preview .ip-row:not(.ip-row-head) {
+  border-bottom: 1px solid #ecece7;
+}
+.invoice-preview .ip-row:not(.ip-row-head) span {
+  height: 8px;
+  border-radius: 2px;
+  background: #ecece7;
+}
+.invoice-preview .ip-row:not(.ip-row-head) span:first-child {
+  width: 55%;
+}
+.invoice-preview .ip-row:not(.ip-row-head) span:last-child {
+  width: 18%;
+}
+
+@media (max-width: 480px) {
+  .template-thumb {
+    height: 48px;
+  }
+  .template-option {
+    padding: var(--space-2);
+  }
+}

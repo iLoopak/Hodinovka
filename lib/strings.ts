@@ -26,6 +26,7 @@ export const strings = {
     faktury: "Faktury",
     projekty: "Projekty",
     vykazy: "Výkazy práce",
+    nastaveni: "Nastavení",
   },
 
   prehled: {
@@ -272,6 +273,56 @@ export const strings = {
       overdue: "Po splatnosti",
       paid: "Zaplaceno",
     },
+  },
+
+  nastaveni: {
+    title: "Nastavení",
+    subtitle: "Firemní profil pro faktury",
+
+    profileTitle: "Můj profil / Firma",
+    profileHint:
+      "Tyto údaje se propíšou do každé faktury jako dodavatel. Vše zůstává jen ve vašem zařízení.",
+    fields: {
+      name: "Název / jméno",
+      address: "Adresa",
+      addressHint: "Ulice a číslo, PSČ a město — každé na svůj řádek.",
+      ico: "IČO",
+      dic: "DIČ",
+      vatPayer: "Jsem plátce DPH",
+      bankAccount: "Číslo účtu",
+      iban: "IBAN",
+      paymentTerms: "Platební podmínky",
+      paymentTermsPlaceholder: "Např. Platba převodem do 14 dnů.",
+      footerNote: "Poznámka v patičce",
+      footerNotePlaceholder: "Např. Nejsem plátce DPH. Děkuji za spolupráci.",
+    },
+
+    brandingTitle: "Vzhled faktury",
+    logo: "Logo",
+    signature: "Podpis / razítko",
+    imageHint: "PNG nebo JPG. Obrázek se automaticky zmenší (max 600 px).",
+    addImage: "Nahrát obrázek",
+    changeImage: "Změnit",
+    removeImage: "Odebrat",
+
+    accent: "Barva zvýraznění",
+    accentHint: "Použije se v hlavičce a tabulce faktury.",
+
+    template: "Šablona",
+    templates: {
+      "classic-left": "Klasická — logo vlevo",
+      "classic-right": "Klasická — logo vpravo",
+      minimal: "Minimalistická",
+    } as Record<string, string>,
+
+    previewTitle: "Náhled hlavičky",
+    previewNote: "Kompletní PDF a odeslání e-mailem přijde ve Fázi 7.",
+    supplier: "Dodavatel",
+    emptyName: "Název vaší firmy",
+    faktura: "FAKTURA",
+
+    save: "Uložit profil",
+    saved: "Profil uložen.",
   },
 
   common: {

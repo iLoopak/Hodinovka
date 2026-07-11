@@ -9,6 +9,7 @@ import {
   IconWork,
   IconClients,
   IconInvoices,
+  IconSettings,
 } from "@/components/icons";
 
 const items = [
@@ -16,6 +17,7 @@ const items = [
   { href: "/vykazy", label: strings.nav.prace, Icon: IconWork },
   { href: "/klienti", label: strings.nav.klienti, Icon: IconClients },
   { href: "/faktury", label: strings.nav.faktury, Icon: IconInvoices },
+  { href: "/nastaveni", label: strings.nav.nastaveni, Icon: IconSettings },
 ];
 
 export function AppNav() {
