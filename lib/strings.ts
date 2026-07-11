@@ -219,6 +219,9 @@ export const strings = {
 
     // Výběr rozsahu a zdroje
     params: "Z čeho vystavit",
+    loadFromWork: "Předvyplnit z výkazů práce",
+    workSource: "Z výkazů práce",
+    hide: "Skrýt",
     allClientProjects: "Všechny projekty klienta",
     rangeFrom: "Od",
     rangeTo: "Do",
