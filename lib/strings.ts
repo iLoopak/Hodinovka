@@ -284,6 +284,7 @@ export const strings = {
     pdfManualAttach:
       "PDF bylo staženo — přiložte ho prosím ručně k e-mailu (otevřeli jsme koncept).",
     pdfError: "PDF se nepodařilo vytvořit.",
+    pdfSaved: (name: string) => `Soubor uložen: ${name}`,
     pdfProfileHint:
       "Tip: doplňte si firemní profil v Nastavení, aby faktura obsahovala údaje dodavatele.",
     mailSubject: (num: string) => `Faktura ${num}`,

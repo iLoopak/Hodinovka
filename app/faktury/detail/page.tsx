@@ -13,6 +13,7 @@ import { invoiceStatusView, invoiceBadge } from "@/lib/status";
 import { PROFILE_ID } from "@/lib/profile";
 import { resolveIban, buildSpd, spdMessage } from "@/lib/payment";
 import { buildIsdoc } from "@/lib/isdoc";
+import { isNativeApp, nativeShareFile, nativeSaveFile } from "@/lib/native";
 import { buildInvoiceData, pdfSignature } from "@/lib/pdf/invoiceData";
 import { generateInvoicePdf, generateQrMatrix, blobToDataUrl } from "@/lib/pdf/generate";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -136,17 +137,34 @@ function InvoiceDetail() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  function handleIsdoc() {
-    const xml = buildIsdoc(invoice!, client, profile);
-    const blob = new Blob([xml], { type: "application/xml" });
-    downloadBlob(blob, `faktura-${invoiceNumber.replace(/[^\w.-]+/g, "-")}.isdoc`);
+  // „Stáhnout" — v nativním obalu (Android) uloží do Dokumentů a oznámí cestu,
+  // na webu použije klasické stažení přes odkaz.
+  async function saveBlob(blob: Blob, name: string = fileName) {
+    if (isNativeApp()) {
+      const saved = await nativeSaveFile(blob, name);
+      setPdfMsg(s.pdfSaved(saved));
+    } else {
+      downloadBlob(blob, name);
+    }
+  }
+
+  async function handleIsdoc() {
+    setPdfMsg(null);
+    try {
+      const xml = buildIsdoc(invoice!, client, profile);
+      const blob = new Blob([xml], { type: "application/xml" });
+      await saveBlob(blob, `faktura-${invoiceNumber.replace(/[^\w.-]+/g, "-")}.isdoc`);
+    } catch (err) {
+      console.error("ISDOC export selhal:", err);
+      setPdfMsg(s.pdfError);
+    }
   }
 
   async function handleDownload() {
     setPdfBusy(true);
     setPdfMsg(null);
     try {
-      downloadBlob(await getOrBuildPdf());
+      await saveBlob(await getOrBuildPdf());
     } catch (err) {
       console.error("PDF export selhal:", err);
       setPdfMsg(s.pdfError);
@@ -160,6 +178,12 @@ function InvoiceDetail() {
     setPdfMsg(null);
     try {
       const blob = await getOrBuildPdf();
+      // Nativní obal (Android): sdílení přes Capacitor Share plugin — Web Share
+      // API se soubory není ve WebView spolehlivé.
+      if (isNativeApp()) {
+        await nativeShareFile(blob, fileName, { title: s.mailSubject(invoiceNumber) });
+        return;
+      }
       const file = new File([blob], fileName, { type: "application/pdf" });
       const nav = navigator as Navigator & { canShare?: (d?: ShareData) => boolean };
       if (nav.canShare?.({ files: [file] })) {
