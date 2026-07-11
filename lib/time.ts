@@ -28,6 +28,32 @@ export function shiftMonth(month: string, delta: number): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
+/** Posun ISO data o n dní (kladné i záporné). */
+export function addDays(iso: string, n: number): string {
+  const d = new Date(iso + "T12:00:00");
+  d.setDate(d.getDate() + n);
+  return isoDateFromTs(d.getTime());
+}
+
+/** Počet dní z data a do data b (b - a). */
+export function diffDays(aIso: string, bIso: string): number {
+  const a = new Date(aIso + "T12:00:00").getTime();
+  const b = new Date(bIso + "T12:00:00").getTime();
+  return Math.round((b - a) / 86400000);
+}
+
+/** Rozsah předchozího kalendářního měsíce { from, to } (ISO data). */
+export function previousMonthRange(ref: Date = new Date()): { from: string; to: string } {
+  const first = new Date(ref.getFullYear(), ref.getMonth() - 1, 1);
+  const last = new Date(ref.getFullYear(), ref.getMonth(), 0); // den 0 = poslední den min. měsíce
+  return { from: isoDateFromTs(first.getTime()), to: isoDateFromTs(last.getTime()) };
+}
+
+/** Je ISO datum v rozsahu [from, to] včetně? */
+export function isInRange(iso: string, from: string, to: string): boolean {
+  return iso >= from && iso <= to;
+}
+
 const monthNames = [
   "leden", "únor", "březen", "duben", "květen", "červen",
   "červenec", "srpen", "září", "říjen", "listopad", "prosinec",

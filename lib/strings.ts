@@ -6,6 +6,13 @@
  * (příp. z něj uděláme slovník podle jazyka).
  */
 
+/** České skloňování slova „záznam" podle počtu (1 záznam / 2–4 záznamy / 5 záznamů). */
+function pluralZaznam(n: number): string {
+  if (n === 1) return "záznam";
+  if (n >= 2 && n <= 4) return "záznamy";
+  return "záznamů";
+}
+
 export const strings = {
   app: {
     name: "Hodinovka",
@@ -204,11 +211,57 @@ export const strings = {
   faktury: {
     title: "Faktury",
     empty: "Zatím tu nejsou žádné faktury.",
-    emptyHint: "Vytvořte fakturu z výkazů práce nebo ručně.",
+    emptyHint: "Vytvořte fakturu z nevyfakturovaných výkazů práce.",
+    emptyClientHint: "U tohoto klienta zatím není žádná faktura.",
     add: "Nová faktura",
-    upcomingTitle: "Fakturace bude brzy",
-    upcomingHint:
-      "Vystavování faktur a export do PDF připravujeme v dalších fázích.",
+    newTitle: "Nová faktura",
+    notFound: "Faktura nenalezena.",
+
+    // Výběr rozsahu a zdroje
+    params: "Z čeho vystavit",
+    allClientProjects: "Všechny projekty klienta",
+    rangeFrom: "Od",
+    rangeTo: "Do",
+    mode: "Rozdělení položek",
+    modePerEntry: "Po záznamech",
+    modePerProject: "Sečíst po projektech",
+    generate: "Načíst nevyfakturované výkazy",
+    regenerate: "Načíst znovu",
+    noUnbilled: "V tomto období nejsou žádné nevyfakturované výkazy.",
+    includedCount: (n: number) => `Zahrnuto ${n} ${pluralZaznam(n)}`,
+
+    // Položky
+    itemsTitle: "Položky faktury",
+    addItem: "Přidat položku",
+    itemDescription: "Popis",
+    itemQty: "Množství",
+    itemUnit: "MJ",
+    itemPrice: "Cena/MJ",
+    itemTotal: "Celkem",
+    noItems: "Faktura nemá žádné položky.",
+    total: "Celkem k úhradě",
+
+    // Údaje faktury
+    detailsTitle: "Údaje faktury",
+    number: "Číslo faktury",
+    issueDate: "Datum vystavení",
+    taxableSupplyDate: "DUZP",
+    dueDate: "Datum splatnosti",
+    vs: "Variabilní symbol",
+    save: "Uložit fakturu",
+
+    // Detail
+    items: "Položky",
+    markIssued: "Označit jako vystavenou",
+    markPaid: "Označit jako zaplacenou",
+    markDraft: "Vrátit na koncept",
+    pdfNote: "Export do PDF a odeslání e-mailem přijde v dalších fázích.",
+    deleteConfirm:
+      "Opravdu smazat fakturu? Navázané výkazy se opět označí jako nevyfakturované.",
+
+    clientRequired: "Vyberte klienta.",
+    itemsRequired: "Faktura musí mít alespoň jednu položku.",
+
     statuses: {
       draft: "Koncept",
       issued: "Vystavena",

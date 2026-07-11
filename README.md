@@ -43,12 +43,14 @@ docs/           # roadmap.md + faktura-pdf-layout.md
 
 Postup vývoje po fázích viz [`docs/roadmap.md`](docs/roadmap.md).
 
-**Stav:** Fáze 3 (Výkazy práce) hotová — zápis odpracovaného času ke klientovi
-nebo projektu (ručně i **stopkami start/stop**), časová osa po dnech s filtry
-(klient/projekt/měsíc), měsíční souhrn odpracováno/nevyfakturováno; provázáno
-s detailem klienta i projektu a s dashboardem. Hotové i Fáze 1–2 (Klienti +
-ARES, Projekty) a vizuální systém. Fakturace (Fáze 4+) zatím čeká — sekce mají
-čestné „připravujeme" stavy.
+**Stav:** Fáze 4 (Faktury z výkazů) hotová — vystavení faktury z
+nevyfakturovaných výkazů (období = minulý měsíc, rozdělení po záznamech nebo
+sečteno po projektech, fixní projekt = fixní položka), editovatelné položky,
+uložení jako koncept + označení výkazů jako vyfakturovaných, stavy
+koncept/vystavena/zaplacena, přehled faktur a upozornění na splatnost na
+dashboardu. Hotové i Fáze 1–3 (Klienti + ARES, Projekty, Výkazy práce vč.
+stopek) a vizuální systém. Export do PDF a odeslání e-mailem (Fáze 7) zatím
+čeká.
 
 > ARES posílá `Access-Control-Allow-Origin: *`, takže se volá přímo
 > z prohlížeče (`lib/ares.ts`) — žádný proxy/backend není potřeba a lookup

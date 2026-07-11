@@ -1,14 +1,16 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getDb } from "@/lib/db";
 import { strings } from "@/lib/strings";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatDate } from "@/lib/format";
+import { todayIso } from "@/lib/time";
 import { billingSummary } from "@/lib/project";
-import { projectBadge } from "@/lib/status";
+import { projectBadge, invoiceStatusView, invoiceBadge } from "@/lib/status";
+import { invoiceTotal } from "@/lib/invoice";
 import { computeUnbilled } from "@/lib/metrics";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Monogram } from "@/components/Monogram";
@@ -35,6 +37,8 @@ function ClientDetail() {
   const router = useRouter();
   const params = useSearchParams();
   const id = Number(params.get("id"));
+  const [today, setToday] = useState("");
+  useEffect(() => setToday(todayIso()), []);
 
   const client = useLiveQuery(
     () => (Number.isFinite(id) ? getDb().clients.get(id).then((c) => c ?? null) : null),
@@ -102,13 +106,21 @@ function ClientDetail() {
         </div>
       </div>
 
-      {/* Primární akce — pozitivní, funkční (žádné zavádějící zakázané tlačítko). */}
+      {/* Primární akce — pozitivní, funkční. */}
       <div className="detail-actions">
-        <Link href={`/projekty/novy/?clientId=${id}`} className="btn btn-primary">
+        <Link href={`/faktury/nova/?clientId=${id}`} className="btn btn-primary">
+          <IconInvoices /> {s.newInvoice}
+        </Link>
+        <Link href={`/projekty/novy/?clientId=${id}`} className="btn btn-secondary">
           <IconPlus /> {s.newProject}
         </Link>
-        <Link href={`/klienti/upravit/?id=${id}`} className="btn btn-secondary">
-          <IconEdit /> {strings.common.edit}
+        <Link
+          href={`/klienti/upravit/?id=${id}`}
+          className="btn btn-secondary"
+          style={{ flex: "none" }}
+          aria-label={strings.common.edit}
+        >
+          <IconEdit />
         </Link>
       </div>
 
@@ -167,10 +179,42 @@ function ClientDetail() {
         )}
       </section>
 
-      {/* Faktury — funkce přijde ve Fázi 4/5 */}
+      {/* Faktury */}
       <section className="panel">
-        <SectionHeader title={s.invoices} />
-        <EmptyState icon={<IconInvoices />} title={s.noInvoices} description={strings.faktury.upcomingHint} />
+        <SectionHeader
+          title={s.invoices}
+          action={{ href: `/faktury/nova/?clientId=${id}`, label: <><IconPlus size={15} /> {s.newInvoice}</> }}
+        />
+        {invoices && invoices.length > 0 ? (
+          <div className="list">
+            {[...invoices]
+              .sort((a, b) => (a.issueDate < b.issueDate ? 1 : -1))
+              .map((inv) => (
+                <ListRow
+                  key={inv.id}
+                  href={`/faktury/detail/?id=${inv.id}`}
+                  leading={<span className="monogram" aria-hidden="true"><IconInvoices size={18} /></span>}
+                  title={<span className="tnum">{inv.invoiceNumber}</span>}
+                  subtitle={`splatnost ${formatDate(inv.dueDate)}`}
+                  meta={
+                    <span className="invoice-meta">
+                      <span className="tnum invoice-amount">{formatMoney(invoiceTotal(inv.items), client.currency)}</span>
+                      <StatusBadge spec={invoiceBadge(invoiceStatusView(inv, today))} />
+                    </span>
+                  }
+                  showChevron={false}
+                />
+              ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={<IconInvoices />}
+            title={s.noInvoices}
+            description={strings.faktury.emptyHint}
+            actionLabel={s.newInvoice}
+            actionHref={`/faktury/nova/?clientId=${id}`}
+          />
+        )}
       </section>
 
       {/* Kontakt a fakturační údaje — nižší priorita */}
